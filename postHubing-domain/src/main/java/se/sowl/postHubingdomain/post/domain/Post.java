@@ -5,8 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import se.sowl.postHubingdomain.comment.domain.Comment;
-import se.sowl.postHubingdomain.like.domain.Like;
 import se.sowl.postHubingdomain.user.domain.User;
 
 import java.time.LocalDateTime;
@@ -25,8 +23,9 @@ public class Post {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
-    private String content;
+//    content 테이블 분리
+//    @Column(nullable = false)
+//    private String content;
 
     @CreationTimestamp
     @Column(nullable = false,updatable = false)
@@ -37,11 +36,9 @@ public class Post {
     private User author;
 
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL, orphanRemoval = true) // Post삭제시 관련 Comment와 Like도 삭제
-    private List<Comment> comments = new ArrayList<>();
+    private List<PostComment> postComments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
-    private List<Like> likes = new ArrayList<>();
-
-    @Column(nullable = false)
-    private String category;
+    // category 테이블 분리
+//    @Column(nullable = false)
+//    private String categoryId;
 }

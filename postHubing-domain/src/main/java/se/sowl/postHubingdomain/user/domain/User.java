@@ -7,8 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import se.sowl.postHubingdomain.comment.domain.Comment;
-import se.sowl.postHubingdomain.like.domain.Like;
+import se.sowl.postHubingdomain.post.domain.PostComment;
+import se.sowl.postHubingdomain.post.domain.CommentLike;
 import se.sowl.postHubingdomain.post.domain.Post;
 
 import java.time.LocalDateTime;
@@ -44,10 +44,10 @@ public class User {
     private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Comment> comments = new ArrayList<>();
+    private List<PostComment> postComments = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Like> likes = new ArrayList<>();
+    private List<CommentLike> commentLikes = new ArrayList<>();
 
     @Builder
     public User(Long id, String name, String nickname, String email, String provider) {
