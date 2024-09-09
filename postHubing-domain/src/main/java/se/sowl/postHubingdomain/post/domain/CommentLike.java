@@ -5,8 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import se.sowl.postHubingdomain.post.domain.PostComment;
-import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.user.domain.User;
 
 import java.time.LocalDateTime;
@@ -35,6 +33,4 @@ public class CommentLike {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-
 }

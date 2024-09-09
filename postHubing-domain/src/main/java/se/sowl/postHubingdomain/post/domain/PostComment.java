@@ -35,6 +35,6 @@ public class PostComment {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "postComment")
     private List<CommentLike> commentLikes = new ArrayList<>();
 }

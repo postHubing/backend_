@@ -23,22 +23,14 @@ public class Post {
     @Column(nullable = false)
     private String title;
 
-//    content 테이블 분리
-//    @Column(nullable = false)
-//    private String content;
-
     @CreationTimestamp
-    @Column(nullable = false,updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL, orphanRemoval = true) // Post삭제시 관련 Comment와 Like도 삭제
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> postComments = new ArrayList<>();
-
-    // category 테이블 분리
-//    @Column(nullable = false)
-//    private String categoryId;
 }
