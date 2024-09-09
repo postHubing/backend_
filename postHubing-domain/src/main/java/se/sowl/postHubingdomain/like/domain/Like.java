@@ -29,7 +29,7 @@ public class Like {
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "commnent_id")
+    @JoinColumn(name = "comment_id")
     private Comment comment;
 
     @CreationTimestamp
