@@ -56,15 +56,14 @@ class UserServiceTest {
         void setUserNickname() {
 
             // given
-            User fixtureUser = UserFixture.createUser(1L, "안녕", "안녕1", "dasd@naver.com", "naver");
-            User user = userRepository.save(fixtureUser);
             String newNickname = "안녕2";
             EditUserRequest editUserRequest = new EditUserRequest(newNickname);
 
-            // when & then
-            userService.editUser(user.getId(), editUserRequest);
+            // when
+            userService.editUser(testUser.getId(), editUserRequest);
 
-            User updatedUser = userRepository.findById(user.getId()).orElseThrow();
+            // then
+            User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
 
             assertThat(updatedUser.getNickname()).isEqualTo(newNickname);
         }
@@ -74,16 +73,13 @@ class UserServiceTest {
         void setUserNicknameErr() {
 
             // given
-            User fixtureUser = UserFixture.createUser(1L, "안녕", "안녕1", "dasd@naver.com", "naver");
-            User user = userRepository.save(fixtureUser);
             String newNickname = "매우매우긴닉네임인데감당이가능할까요과연이게진짜과연";
             EditUserRequest editUserRequest = new EditUserRequest(newNickname);
 
             // when & then
             assertThrows(InvalidNicknameException.class, () -> {
-                userService.editUser(user.getId(), editUserRequest);
+                userService.editUser(testUser.getId(), editUserRequest);
             });
-
         }
     }
 }
