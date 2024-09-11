@@ -37,7 +37,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = UserFixture.createUser(null, "테스트", "테스트유저", "test@example.com", "naver");
+        testUser = UserFixture.createUser(null, "테스트", "테스트유저1", "test@example.com", "naver");
         testUser = userRepository.save(testUser);
         customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
         when(oAuthService.loadUser(any())).thenReturn(customOAuth2User);
