@@ -1,9 +1,7 @@
 package se.sowl.postHubingdomain.post.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import se.sowl.postHubingdomain.user.domain.User;
 
@@ -13,7 +11,7 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Getter
+@Getter @Setter
 @Table(name = "posts")
 public class Post {
 
@@ -36,4 +34,12 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> postComments = new ArrayList<>();
+
+    @Builder
+    public Post(Long id, String title,User author, PostContent postContent) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.postContent = postContent;
+    }
 }
