@@ -43,16 +43,11 @@ class PostServiceTest {
 
         posts = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
-            PostContent postContent = PostContent.builder()
-                    .content(i+"번째 게시판 내용입니다.")
-                    .build();
 
             Post post = Post.builder()
                     .title(i+"번째 게시판 제목입니다.")
                     .author(testUser)
                     .build();
-            post.setPostContent(postContent);
-            postContent.setPost(post);
 
             posts.add(post);
         }
