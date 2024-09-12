@@ -2,6 +2,7 @@ package se.sowl.postHubingdomain.post.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,4 +38,13 @@ public class PostComment {
 
     @OneToMany(mappedBy = "postComment")
     private List<CommentLike> commentLikes = new ArrayList<>();
+
+    @Builder
+
+    public PostComment(Long id, User user, Post post, String content) {
+        this.id = id;
+        this.content = content;
+        this.post = post;
+        this.user = user;
+    }
 }
