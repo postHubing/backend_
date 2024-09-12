@@ -53,7 +53,6 @@ public class User {
 
     public void updateNickname(String nickname) {
         if (nickname.length() < 2 || nickname.length() > 15) {
-            log.error("Invalid nickname length: {}", nickname.length());
             throw new InvalidNicknameException("닉네임은 2자 이상 15자 이하여야 합니다.");
         }
         this.nickname = nickname;

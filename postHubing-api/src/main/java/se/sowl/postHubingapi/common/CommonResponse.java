@@ -1,8 +1,10 @@
 package se.sowl.postHubingapi.common;
 
 import lombok.Data;
+import lombok.Getter;
 
 @Data
+@Getter
 public class CommonResponse<T> {
     private String code;
     private String message;
