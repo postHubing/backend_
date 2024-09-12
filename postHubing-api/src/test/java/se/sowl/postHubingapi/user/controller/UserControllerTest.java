@@ -76,7 +76,8 @@ public class UserControllerTest {
                             .with(oauth2Login().oauth2User(customOAuth2User))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"nickname\": \"a\"}"))
+                            .content("{\"nickname\": \"a\"}")):
+
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.code").value("400"))
                     .andExpect(jsonPath("$.message").value("닉네임은 2자 이상 15자 이하여야 합니다."));

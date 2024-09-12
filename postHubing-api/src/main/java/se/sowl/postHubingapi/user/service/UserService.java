@@ -14,10 +14,6 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
-    public List<User> getList() {
-        return userRepository.findAll();
-    }
-
     @Transactional
     public void editUser(Long userId, EditUserRequest request) {
         User user = userRepository.findById(userId).orElseThrow();
