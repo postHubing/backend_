@@ -4,8 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import se.sowl.postHubingapi.fixture.UserFixture;
@@ -15,12 +17,20 @@ import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.user.domain.CustomOAuth2User;
 import se.sowl.postHubingdomain.user.domain.User;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+
+
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PostController.class)
 class PostControllerTest {
@@ -28,7 +38,7 @@ class PostControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
+    @MockBean
     private PostService postService;
 
     @MockBean
@@ -60,13 +70,23 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("GET/api/posts/list")
+    @DisplayName("GET /api/posts/list")
+    @WithMockUser
     void getPostListTest() throws Exception{
 
+        //given
+
+        //when
+        when(postService.getAllPosts()).thenReturn(testPostLists);
+
+        //then
+        mockMvc.perform(get("/api/posts/list")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.message").value("성공"));
     }
-
-
-
 
 
 }
