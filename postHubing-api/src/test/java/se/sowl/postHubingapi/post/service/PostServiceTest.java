@@ -66,7 +66,7 @@ class PostServiceTest {
             //given
 
             //when
-            List<Post> postLists = postService.getAllPosts();
+            List<Post> postLists = postService.getPostList();
 
             //then
             assertEquals(5, postLists.size(),"저장된 게시물은 5개이여야합니다.");

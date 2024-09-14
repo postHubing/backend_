@@ -22,7 +22,7 @@ public class PostController {
     @GetMapping("/list")
     @PreAuthorize("isAuthenticated()")
     public CommonResponse<List<Post>> getPostList(){
-        List<Post> postList = postService.getAllPosts();
+        List<Post> postList = postService.getPostList();
         return CommonResponse.ok(postList);
     }
 

@@ -17,7 +17,4 @@ public class PostService {
     public List<Post> getPostList() { // 모드 게시물 조회
         return postRepository.findAll();
     }
-
-
-    public List<Post> getAllPosts() {return postRepository.findAll();}
 }

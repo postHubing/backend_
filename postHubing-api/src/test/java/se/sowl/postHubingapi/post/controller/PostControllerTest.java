@@ -77,7 +77,7 @@ class PostControllerTest {
         //given
 
         //when
-        when(postService.getAllPosts()).thenReturn(testPostLists);
+        when(postService.getPostList()).thenReturn(testPostLists);
 
         //then
         mockMvc.perform(get("/api/posts/list")
