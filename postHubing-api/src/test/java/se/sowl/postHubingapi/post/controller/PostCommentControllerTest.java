@@ -20,7 +20,6 @@ import se.sowl.postHubingdomain.user.domain.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -83,7 +82,7 @@ class PostCommentControllerTest {
         when(postCommentService.getCommentsByPostId(postId)).thenReturn(testPostCommentList);
 
         //then
-        mockMvc.perform(get("/api/postcomments/list/{postId}",postId)
+        mockMvc.perform(get("/api/postComments/list/{postId}",postId)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -21,7 +21,8 @@ public class PostCommentService {
     public List<PostComment> getCommentsByPostId(Long postId) {
 
         if (!postRepository.existsById(postId)) {
-            throw new EntityNotFoundException("게시물을 찾을 수 없습니다." + postId + "없는 아이디입니다.");
+            // PostNotFoundException으로 cumtom exception 만들어서 처리
+            throw new EntityNotFoundException("게시물을 찾을 수 없습니다. postId : " + postId + "은 없는 아이디입니다.");
         }
 
         return postCommentRepository.findByPostId(postId);
