@@ -1,5 +1,6 @@
 package se.sowl.postHubingapi.post.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -90,6 +91,17 @@ class PostCommentServiceTest {
             assertEquals(0,postCommentList.size(),"게시판 내의 댓글이 없습니다.");
         }
 
+        @Test
+        @DisplayName("게시판 아이디가 틀려 게시판을 찾을 수 없는 경우")
+        void testNotExistingByPostId(){
+            //given
+            Long notExistingPostId = 9999L;
+
+            //when & then
+            assertThrows(EntityNotFoundException.class,() -> postCommentService.getCommentsByPostId(notExistingPostId),
+                    "존재하지 않는 ID로 조회시 EntityNotFoundException가 발생해야 합니다.");
+
+        }
 
     }
 }
