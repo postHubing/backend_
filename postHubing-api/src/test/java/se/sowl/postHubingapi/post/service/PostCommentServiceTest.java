@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.UserFixture;
+import se.sowl.postHubingapi.post.exception.PostException;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.domain.PostComment;
 import se.sowl.postHubingdomain.post.repository.PostCommentRepository;
@@ -98,8 +99,8 @@ class PostCommentServiceTest {
             Long notExistingPostId = 9999L;
 
             //when & then
-            assertThrows(EntityNotFoundException.class,() -> postCommentService.getCommentsByPostId(notExistingPostId),
-                    "존재하지 않는 ID로 조회시 EntityNotFoundException가 발생해야 합니다.");
+            assertThrows(PostException.PostNotFoundException.class,() -> postCommentService.getCommentsByPostId(notExistingPostId),
+                    "존재하지 않는 ID로 조회시 PostNotFoundException가 발생해야 합니다.");
 
         }
 
