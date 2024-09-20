@@ -9,6 +9,8 @@ public class PostException extends RuntimeException{
         super(message);
         this.status = status;
     }
+
+    // 안쓰는 코드는 지워
     public HttpStatus getStatus(){return status;}
 
 
