@@ -10,25 +10,14 @@ import se.sowl.postHubingdomain.post.domain.PostComment;
 import java.util.List;
 
 @RestController
-// 카멜 방식으로 postcomments가 아닌 postComments로 변경
 @RequestMapping("/api/postComments")
 @RequiredArgsConstructor
 public class PostCommentController {
 
     private final PostCommentService postCommentService;
 
-    @GetMapping("/list/{postId}")
-    @PreAuthorize("isAuthenticated()")
-    public CommonResponse<List<PostComment>> getCommentsByPostId(@PathVariable("postId") Long postId){
-           List<PostComment> postCommentList = postCommentService.getCommentsByPostId(postId);
-           return CommonResponse.ok(postCommentList);
-    }
-
-    // pathvariable을 requestparam으로 변경
-    // 아래의 코드에 맞게 controllerTest 변경하고
-    // 테스트 코드를 통과하도록 수정
     @GetMapping("/list")
-    public CommonResponse<List<PostComment>> getCommentsByPostId_(@RequestParam Long postId){
+    public CommonResponse<List<PostComment>> getCommentsByPostId(@RequestParam("postId") Long postId){
            List<PostComment> postCommentList = postCommentService.getCommentsByPostId(postId);
            return CommonResponse.ok(postCommentList);
     }

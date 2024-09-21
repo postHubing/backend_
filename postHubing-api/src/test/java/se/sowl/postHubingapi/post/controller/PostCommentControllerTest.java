@@ -72,7 +72,7 @@ class PostCommentControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/postcomments/list/{postId}")
+    @DisplayName("GET /api/postcomments/list")
     @WithMockUser
     void getPostCommentListTest() throws Exception{
         //given
@@ -82,7 +82,8 @@ class PostCommentControllerTest {
         when(postCommentService.getCommentsByPostId(postId)).thenReturn(testPostCommentList);
 
         //then
-        mockMvc.perform(get("/api/postComments/list/{postId}",postId)
+        mockMvc.perform(get("/api/postComments/list")
+                        .param("postId",String.valueOf(postId))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
