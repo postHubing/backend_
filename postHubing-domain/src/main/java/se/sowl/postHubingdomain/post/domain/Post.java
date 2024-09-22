@@ -36,10 +36,10 @@ public class Post {
     private List<PostComment> postComments = new ArrayList<>();
 
     @Builder
-    public Post(Long id, String title,User author, PostContent postContent) {
+    public Post(Long id, String title, User author, String content) {
         this.id = id;
         this.title = title;
         this.author = author;
-        this.postContent = postContent;
+        this.postContent = new PostContent(this, content);
     }
 }
