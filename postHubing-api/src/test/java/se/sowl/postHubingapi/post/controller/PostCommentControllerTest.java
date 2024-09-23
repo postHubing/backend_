@@ -72,6 +72,11 @@ class PostCommentControllerTest {
     }
 
     @Test
+    // postComments로 변경
+    // displayName 변경
+    // 아래 적힌 부분은 nested내용이고
+    // test 코드에서는 어떤 내용인지 알려줘야대
+    // 게시물의 댓글 목록을 조회하는 테스트
     @DisplayName("GET /api/postcomments/list")
     @WithMockUser
     void getPostCommentListTest() throws Exception{
@@ -88,8 +93,12 @@ class PostCommentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andExpect(jsonPath("$.message").value("성공"));
+                .andExpect(jsonPath("$.message").value("성공"))
+                // result가 배열로 리턴되는지 확인q
+                .andExpect(jsonPath("$.result").isArray());
 
     }
+
+    // 댓글이 없는 경우 테스트 추가
 
 }

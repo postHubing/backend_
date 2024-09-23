@@ -85,7 +85,10 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andExpect(jsonPath("$.message").value("성공"));
+                .andExpect(jsonPath("$.message").value("성공"))
+                // result가 배열로 리턴되는지 확인
+                .andExpect(jsonPath("$.result").isArray());
+
     }
 
 
