@@ -15,4 +15,10 @@ public class PostException extends RuntimeException{
             super("존재하지 않는 게시물입니다.", HttpStatus.NOT_FOUND);
         }
     }
+
+    public static class PostNotAuthorizedException extends PostException{
+        public PostNotAuthorizedException(){
+            super("게시글 수정 권한이 없습니다.", HttpStatus.FORBIDDEN);
+        }
+    }
 }

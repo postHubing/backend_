@@ -12,6 +12,7 @@ import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.post.exception.PostException;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.domain.PostComment;
+import se.sowl.postHubingdomain.post.domain.PostContent;
 import se.sowl.postHubingdomain.post.repository.PostCommentRepository;
 import se.sowl.postHubingdomain.post.repository.PostRepository;
 import se.sowl.postHubingdomain.user.domain.User;
@@ -52,6 +53,7 @@ class PostCommentServiceTest {
         testPost = Post.builder()
                 .title("testPost")
                 .author(testUser)
+                .content("테스트 게시글 내용")
                 .build();
         testPost = postRepository.save(testPost);
     }

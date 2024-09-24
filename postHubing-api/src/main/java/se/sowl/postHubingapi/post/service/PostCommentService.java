@@ -22,12 +22,6 @@ public class PostCommentService {
 
     public List<PostComment> getCommentsByPostId(Long postId) {
 
-        /*if (!postRepository.existsById(postId)) {
-            throw new PostException.PostNotFoundException();
-        }*/
-
-        // exception 처리에서는 if문을 사용하지 않고, orElseThrow를 사용하는 것이 좋다.
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostException.PostNotFoundException::new);
 

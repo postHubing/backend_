@@ -3,12 +3,13 @@ package se.sowl.postHubingapi.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import se.sowl.postHubingapi.post.fixture.PostFixture;
 import se.sowl.postHubingapi.post.exception.PostException;
+import se.sowl.postHubingapi.post.exception.UserException;
+import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
-import se.sowl.postHubingdomain.post.domain.PostContent;
 import se.sowl.postHubingdomain.post.repository.PostRepository;
 import se.sowl.postHubingdomain.user.domain.User;
+import se.sowl.postHubingdomain.user.repository.UserRepository;
 
 import java.util.List;
 @RequiredArgsConstructor
@@ -16,47 +17,60 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     public List<Post> getPostList() { // 모드 게시물 조회
         return postRepository.findAll();
     }
 
 
-    // 메서드 분리
-    // upsertPost 메서드에 코드가 너무 길어
-    /*if (request.getId() == null) {
-        post = createNewPost(userId, request);
-    } else {
-        post = updateExistingPost(userId, request);*/
-    // 위 코드 참고해서 메서드 분리 및 추가
-
-    // upsertPost 메서드 이름 변경 -> editPost
-    // editPost 메서드 파람 변경 -> userId, EditPostRequest (postId, title, content, author)
-    // EditPostRequest 추가하기
-
     @Transactional
-    public PostFixture upsertPost(Long postId, String title, String content, User author){
+    public PostDetailResponse editPost(Long userId, EditPostRequest request){
         Post post;
-        if(postId != null){
-            post = postRepository.findById(postId)
-                    .orElseThrow(PostException.PostNotFoundException::new);
-            post.setTitle(title);
-            post.getPostContent().setContent(content);
-        }
-        else{
-            post = Post.builder()
-                    .title(title)
-                    .author(author)
-                    .content(content)
-                    .build();
+
+        if(request.getPostId() == null){
+            post = createNewPost(userId, request);
+        } else{
+            post = updateExistingPost(userId, request);
         }
 
-        Post savedPost = postRepository.save(post);
-
-        // Fixture는 테스트 코드에서 사용하는 것
-        // PostDetailResponse 추가 생성해서 리턴
-        // Response의 형태는 fixture와 유사
-        return PostFixture.from(savedPost);
+        return createPostDetailResponse(userId, post);
 
     }
+
+    private Post createNewPost(Long userId, EditPostRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserException.UserNotFoundException::new);
+        Post newPost = Post.builder()
+                .title(request.getTitle())
+                .content(request.getContent())
+                .author(user)
+                .build();
+        return postRepository.save(newPost);
+    }
+
+    private Post updateExistingPost(Long userId, EditPostRequest request) {
+        Post existingPost = postRepository.findById(request.getPostId())
+                .orElseThrow(PostException.PostNotFoundException::new);
+
+        validatePostOwnerShip(existingPost, userId);
+        existingPost.update(request.getTitle(), request.getContent());
+        return postRepository.save(existingPost);
+    }
+
+
+    private PostDetailResponse createPostDetailResponse(Long userId, Post post) {
+        return PostDetailResponse.from(post);
+    }
+
+
+    private void validatePostOwnerShip(Post post, Long userId){
+        if(!post.getAuthor().getId().equals(userId)){
+            throw new PostException.PostNotAuthorizedException();
+        }
+    }
+
+
+
 }
+

@@ -3,6 +3,7 @@ package se.sowl.postHubingdomain.post.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import se.sowl.postHubingdomain.user.domain.User;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,10 @@ public class Post {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
@@ -41,5 +46,11 @@ public class Post {
         this.title = title;
         this.author = author;
         this.postContent = new PostContent(this, content);
+    }
+
+    public void update(String title, String content) {
+        this.title = title;
+        this.postContent = new PostContent(this, content);
+        this.updatedAt = LocalDateTime.now();
     }
 }
