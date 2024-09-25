@@ -10,9 +10,9 @@ public class UserException extends RuntimeException{
         this.status = status;
     }
 
-    public static class UserNotFoundException extends UserException{
-        public UserNotFoundException(){
-            super("존재하지 않는 회원입니다.", HttpStatus.NOT_FOUND);
+    public static class UserNotFoundException extends  UserException{
+        public UserNotFoundException() {
+            super("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND);
         }
     }
 }

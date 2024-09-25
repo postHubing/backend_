@@ -66,7 +66,7 @@ public class PostService {
 
     private void validatePostOwnerShip(Post post, Long userId){
         if(!post.getAuthor().getId().equals(userId)){
-            throw new PostException.PostNotAuthorizedException();
+            throw new PostException.PostNotFoundException();
         }
     }
 
