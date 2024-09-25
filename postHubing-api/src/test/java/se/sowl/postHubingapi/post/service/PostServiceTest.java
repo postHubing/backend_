@@ -5,7 +5,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.UserFixture;
-import se.sowl.postHubingapi.post.fixture.PostFixture;
+import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.repository.PostRepository;
 import se.sowl.postHubingdomain.user.domain.User;
@@ -31,7 +31,7 @@ class PostServiceTest {
 
     private User testUser;
 
-    private List<Post> posts;
+    private List<Post> testPosts;
 
 
     @BeforeEach
@@ -41,7 +41,7 @@ class PostServiceTest {
         testUser = UserFixture.createUser(null, "테스트1", "테스트유저1", "test1@example.com", "naver");
         testUser = userRepository.save(testUser);
 
-        posts = new ArrayList<>();
+        testPosts = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
 
             Post post = Post.builder()
@@ -50,9 +50,9 @@ class PostServiceTest {
                     .content(i + "번째 게시판 내용입니다.")
                     .build();
 
-            posts.add(post);
+            testPosts.add(post);
         }
-        postRepository.saveAll(posts);
+        postRepository.saveAll(testPosts);
 
     }
 
@@ -78,44 +78,51 @@ class PostServiceTest {
     @Nested
     @DisplayName("게시판 생성 및 수정")
 
-    class putPost{
+    class EditPost{
         @Test
-        @DisplayName("새 게시판 생성")
-        void putPostSuccess(){
-
+        @DisplayName("새 게시물 생성")
+        void createNewPost(){
             //given
-            String newTitle = "새로운 게시판 제목";
-            String newContent = "새로운 게시판 내용";
+            EditPostRequest request = new EditPostRequest(null, "새 게시물", "새 내용");
 
             //when
-            PostFixture newPost = postService.upsertPost(null, newTitle, newContent, testUser);
+            PostDetailResponse response = postService.editPost(testUser.getId(),request);
 
             //then
-            assertNotNull(newPost);
-            assertNotNull(newPost.getId());
-            assertEquals(newTitle, newPost.getTitle());
-            assertEquals(newContent, newPost.getContent());
-            assertEquals(testUser.getId(), newPost.getAuthorId());
-        }
-        @Test
-        @DisplayName("게시판 수정 성공")
-        void updateExistingPost(){
-            //given
-            Post existingPost = posts.get(0);
-            String updatedTitle = "수정된 제목";
-            String updatedContent = "수정된 내용";
+            assertNotNull(response);
+            assertEquals(request.getTitle(), response.getTitle());
+            assertEquals(request.getContent(), response.getContent());
+            assertEquals(testUser.getId(), response.getAuthorId());
 
-            //when
-            PostFixture updatedPost = postService.upsertPost(existingPost.getId(), updatedTitle,updatedContent,testUser);
-
-            //then
-            assertNotNull(updatedPost);
-            assertEquals(existingPost.getId(), updatedPost.getId());
-            assertEquals(updatedTitle, updatedPost.getTitle());
-            assertEquals(updatedContent, updatedPost.getContent());
-            assertEquals(testUser.getId(), updatedPost.getAuthorId());
-
+            Post savedPost = postRepository.findById(response.getId()).orElse(null);
+            assertNotNull(savedPost);
+            assertEquals(request.getTitle(),response.getTitle());
+            assertEquals(request.getContent(), response.getContent());
+            assertEquals(testUser.getId(), response.getAuthorId());
         }
     }
+
+    @Test
+    @DisplayName("기존 게시물 수정")
+    void updateExistingPost(){
+        //given
+        Post existingPost = testPosts.get(0);
+        EditPostRequest request = new EditPostRequest(existingPost.getId(), "수정된 게시물", "수정된 내용");
+
+        //when
+        PostDetailResponse response = postService.editPost(testUser.getId(), request);
+
+        //then
+        assertNotNull(response);
+        assertEquals(request.getTitle(), response.getTitle());
+        assertEquals(request.getContent(), response.getContent());
+        assertEquals(testUser.getId(), response.getAuthorId());
+
+        Post updatedPost = postRepository.findById(existingPost.getId()).orElse(null);
+        assertNotNull(updatedPost);
+        assertEquals(request.getTitle(), updatedPost.getTitle());
+        assertEquals(request.getContent(), updatedPost.getPostContent().getContent());
+    }
+
 
 }
