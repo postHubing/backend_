@@ -48,9 +48,20 @@ public class Post {
         this.postContent = new PostContent(this, content);
     }
 
+//    public void update_(String title, String content) {
+//        this.title = title;
+//        this.postContent = new PostContent(this, content);
+//        this.updatedAt = LocalDateTime.now();
+//    }
+
     public void update(String title, String content) {
         this.title = title;
-        this.postContent = new PostContent(this, content);
+        if (this.postContent == null) {
+            this.postContent = new PostContent(this, content);
+        } else {
+            this.postContent.update(content);
+        }
         this.updatedAt = LocalDateTime.now();
     }
+
 }

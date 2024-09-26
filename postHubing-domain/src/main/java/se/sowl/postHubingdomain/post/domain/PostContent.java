@@ -27,4 +27,8 @@ public class PostContent {
         this.post = post;
         this.content = content;
     }
+
+    public void update(String content) {
+        this.content = content;
+    }
 }
