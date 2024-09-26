@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.UserFixture;
+import se.sowl.postHubingapi.post.dto.EditPostRequest;
 import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.repository.PostRepository;

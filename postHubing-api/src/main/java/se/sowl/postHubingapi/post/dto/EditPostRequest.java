@@ -1,4 +1,4 @@
-package se.sowl.postHubingapi.post.service;
+package se.sowl.postHubingapi.post.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
