@@ -49,14 +49,6 @@ public class PostService {
         return postRepository.save(newPost);
     }
 
-//    private Post updateExistingPost_(Long userId, EditPostRequest request) {
-//        Post existingPost = postRepository.findById(request.getPostId())
-//                .orElseThrow(PostException.PostNotFoundException::new);
-//
-//        validatePostOwnerShip(existingPost, userId);
-//        existingPost.update_(request.getTitle(), request.getContent());
-//        return postRepository.save(existingPost);
-//    }
 
     private Post updateExistingPost(Long userId, EditPostRequest request) {
         Post existingPost = postRepository.findById(request.getPostId())

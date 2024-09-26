@@ -14,12 +14,12 @@ public class PostContent {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId // 일대일관계에서 사용
+    @MapsId
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @Column(nullable = false)
-    @Lob //content와 같은 대용량 텍스트 데이터를 저장하기 위해 사용함 
+    @Lob
     private String content;
 
     @Builder

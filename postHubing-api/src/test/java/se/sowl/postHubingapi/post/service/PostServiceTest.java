@@ -37,7 +37,6 @@ class PostServiceTest {
     @BeforeEach
     void setUp(){
 
-        // 테스트 유저 생성
         testUser = UserFixture.createUser(null, "테스트1", "테스트유저1", "test1@example.com", "naver");
         testUser = userRepository.save(testUser);
 
@@ -56,7 +55,7 @@ class PostServiceTest {
 
     }
 
-    @Nested  // 테스트 구조화
+    @Nested
     @DisplayName("게시판 조회")
 
     class getPost{
