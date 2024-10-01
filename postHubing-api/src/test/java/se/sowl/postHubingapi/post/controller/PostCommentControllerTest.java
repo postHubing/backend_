@@ -2,6 +2,7 @@ package se.sowl.postHubingapi.post.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -71,34 +72,49 @@ class PostCommentControllerTest {
 
     }
 
-    @Test
-    // postComments로 변경
-    // displayName 변경
-    // 아래 적힌 부분은 nested내용이고
-    // test 코드에서는 어떤 내용인지 알려줘야대
-    // 게시물의 댓글 목록을 조회하는 테스트
-    @DisplayName("GET /api/postcomments/list")
-    @WithMockUser
-    void getPostCommentListTest() throws Exception{
-        //given
-        Long postId = 1L;
 
-        //when
-        when(postCommentService.getCommentsByPostId(postId)).thenReturn(testPostCommentList);
+    @Nested
+    @DisplayName("게시물의 댓글 목록 조회 테스트")
+    class GetPostCommentList{
 
-        //then
-        mockMvc.perform(get("/api/postComments/list")
-                        .param("postId",String.valueOf(postId))
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value("SUCCESS"))
-                .andExpect(jsonPath("$.message").value("성공"))
-                // result가 배열로 리턴되는지 확인q
-                .andExpect(jsonPath("$.result").isArray());
+        @Test
+        @DisplayName("GET /api/postcomments/list, 댓글이 있는 경우")
+        @WithMockUser
+        void getPostCommentListTest() throws Exception{
+            //given
+            Long postId = 1L;
 
+            //when
+            when(postCommentService.getCommentsByPostId(postId)).thenReturn(testPostCommentList);
+
+            //then
+            mockMvc.perform(get("/api/postComments/list")
+                            .param("postId",String.valueOf(postId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("성공"))
+                    .andExpect(jsonPath("$.result").isArray())
+                    .andExpect(jsonPath("$.result.length()").value(3));
+        }
+        @Test
+        @DisplayName("GET /api/postComments/list - 잘못된 postId")
+        @WithMockUser
+        void getPostCommentListWithInvalidPostIdTest() throws Exception {
+            // Given
+            Long invalidPostId = -1L;
+            when(postCommentService.getCommentsByPostId(invalidPostId)).thenThrow(new IllegalArgumentException("Invalid postId"));
+
+            // When & Then
+            mockMvc.perform(get("/api/postComments/list")
+                            .param("postId", String.valueOf(invalidPostId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("Invalid postId"));
+        }
     }
-
-    // 댓글이 없는 경우 테스트 추가
 
 }
