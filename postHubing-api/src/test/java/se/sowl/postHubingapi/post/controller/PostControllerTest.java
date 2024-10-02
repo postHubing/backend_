@@ -21,6 +21,7 @@ import se.sowl.postHubingdomain.user.domain.User;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.Arrays;
 import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -51,7 +52,11 @@ class PostControllerTest {
         customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
         when(oAuthService.loadUser(any())).thenReturn(customOAuth2User);
 
-        testPostLists = PostFixture.createPostList(3, testUser.getId());
+        Post post1 = PostFixture.createPost(1L, "testPost1", "content1", testUser.getId());
+        Post post2 = PostFixture.createPost(2L, "testPost2", "content2", testUser.getId());
+        Post post3 = PostFixture.createPost(3L, "testPost3", "content3", testUser.getId());
+
+        testPostLists = Arrays.asList(post1, post2, post3);
 
     }
 
