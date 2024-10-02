@@ -56,7 +56,7 @@ class PostCommentControllerTest {
 
         testPost = Post.builder()
                 .title("테스트코드")
-                .author(testUser)
+                .userId(testUser.getId())
                 .build();
         testPostCommentList = new ArrayList<>();
         for (int i=1; i<=3; i++){

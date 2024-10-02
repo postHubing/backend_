@@ -30,33 +30,29 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private PostContent postContent;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostComment> postComments = new ArrayList<>();
-
     @Builder
-    public Post(Long id, String title, User author, String content) {
+    public Post(Long id, String title, Long userId) {
         this.id = id;
         this.title = title;
-        this.author = author;
-        this.postContent = new PostContent(this, content);
+        this.userId = userId;
     }
 
 
-    public void update(String title, String content) {
+    public void update(String title) {
         this.title = title;
-        if (this.postContent == null) {
-            this.postContent = new PostContent(this, content);
-        } else {
-            this.postContent.update(content);
-        }
         this.updatedAt = LocalDateTime.now();
+    }
+    public void setPostContent(PostContent postContent) {
+        this.postContent = postContent;
+        if (postContent != null && postContent.getPost() != this) {
+            postContent.setPost(this);
+        }
     }
 
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.post.exception.PostException;
 import se.sowl.postHubingdomain.post.domain.Post;
@@ -50,12 +51,7 @@ class PostCommentServiceTest {
         testUser = UserFixture.createUser(null, "테스트1", "테스트유저1", "test1@example.com", "naver");
         testUser = userRepository.save(testUser);
 
-        testPost = Post.builder()
-                .title("testPost")
-                .author(testUser)
-                .content("테스트 게시글 내용")
-                .build();
-        testPost = postRepository.save(testPost);
+        testPost = postRepository.save(PostFixture.createPost(null, "테스트 게시물", "테스트 컨텐츠", testUser.getId()));
     }
 
     @Nested

@@ -15,16 +15,14 @@ public class PostDetailResponse {
     private String content;
     private LocalDateTime createAt;
     private String authorName;
-    private Long authorId;
 
-    public static PostDetailResponse from(Post post){
+    public static PostDetailResponse from(Post post, String authorName) {
         return builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getPostContent().getContent())
                 .createAt(post.getCreatedAt())
-                .authorName(post.getAuthor().getName())
-                .authorId(post.getAuthor().getId())
+                .authorName(authorName)
                 .build();
     }
 }

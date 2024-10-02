@@ -14,21 +14,26 @@ public class PostContent {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @Column(nullable = false)
-    @Lob
+    @Column(name = "content", nullable = false)
     private String content;
 
     @Builder
     public PostContent(Post post, String content) {
-        this.post = post;
+        this.setPost(post);
         this.content = content;
     }
 
-    public void update(String content) {
-        this.content = content;
+    public void setPost(Post post) {
+        this.post = post;
+        if (post != null && post.getPostContent() != this) {
+            post.setPostContent(this);
+        }
+    }
+
+    public void update(String newContent) {
+        this.content = newContent;
     }
 }

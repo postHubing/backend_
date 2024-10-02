@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.post.dto.EditPostRequest;
 import se.sowl.postHubingapi.response.PostDetailResponse;
@@ -46,12 +47,7 @@ class EditPostServiceTest {
         testPosts = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
 
-            Post post = Post.builder()
-                    .title(i+"번째 게시판 제목입니다.")
-                    .author(testUser)
-                    .content(i + "번째 게시판 내용입니다.")
-                    .build();
-
+            Post post = PostFixture.createPost(null, "테스트 게시물" + i, "테스트 컨텐츠" + i, testUser.getId());
             testPosts.add(post);
         }
         postRepository.saveAll(testPosts);
@@ -75,13 +71,11 @@ class EditPostServiceTest {
             assertNotNull(response);
             assertEquals(request.getTitle(), response.getTitle());
             assertEquals(request.getContent(), response.getContent());
-            assertEquals(testUser.getId(), response.getAuthorId());
 
             Post savedPost = postRepository.findById(response.getId()).orElse(null);
             assertNotNull(savedPost);
             assertEquals(request.getTitle(),response.getTitle());
             assertEquals(request.getContent(), response.getContent());
-            assertEquals(testUser.getId(), response.getAuthorId());
         }
     }
 
@@ -99,7 +93,7 @@ class EditPostServiceTest {
         assertNotNull(response);
         assertEquals(request.getTitle(), response.getTitle());
         assertEquals(request.getContent(), response.getContent());
-        assertEquals(testUser.getId(), response.getAuthorId());
+        assertEquals(testUser.getNickname() != null ? testUser.getNickname() : testUser.getName(), response.getAuthorName());
 
         Post updatedPost = postRepository.findById(existingPost.getId()).orElse(null);
         assertNotNull(updatedPost);

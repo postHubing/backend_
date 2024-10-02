@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.repository.PostRepository;
@@ -42,12 +43,7 @@ class PostServiceTest {
         testPosts = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
 
-            Post post = Post.builder()
-                    .title(i+"번째 게시판 제목입니다.")
-                    .author(testUser)
-                    .content(i + "번째 게시판 내용입니다.")
-                    .build();
-
+            Post post = PostFixture.createPost(null, "테스트 게시물" + i, "테스트 컨텐츠" + i, testUser.getId());
             testPosts.add(post);
         }
         postRepository.saveAll(testPosts);

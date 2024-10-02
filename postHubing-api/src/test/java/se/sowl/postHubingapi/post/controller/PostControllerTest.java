@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.oauth.service.OAuthService;
+import se.sowl.postHubingapi.post.dto.PostDTO;
 import se.sowl.postHubingapi.post.service.PostService;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.user.domain.CustomOAuth2User;
@@ -50,11 +51,13 @@ class PostControllerTest {
         customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
         when(oAuthService.loadUser(any())).thenReturn(customOAuth2User);
 
-        testPostLists = PostFixture.createPostList(3, testUser);
+        testPostLists = PostFixture.createPostList(3, testUser.getId());
 
     }
 
     @Test
+    // 한글로 테스트 케이스 작성
+    // 게시물 리스트 조회
     @DisplayName("GET /api/posts/list")
     @WithMockUser
     void getPostListTest() throws Exception{
