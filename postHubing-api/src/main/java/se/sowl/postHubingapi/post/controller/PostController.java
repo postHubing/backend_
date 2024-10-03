@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import se.sowl.postHubingapi.common.CommonResponse;
 import se.sowl.postHubingapi.post.service.PostService;
+import se.sowl.postHubingapi.response.PostListResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 
 import java.util.List;
@@ -20,8 +21,8 @@ public class PostController {
 
     @GetMapping("/list")
     @PreAuthorize("isAuthenticated()")
-    public CommonResponse<List<Post>> getPostList(){
-        List<Post> postList = postService.getPostList();
+    public CommonResponse<List<PostListResponse>> getPostList(){
+        List<PostListResponse> postList = postService.getPostList();
         return CommonResponse.ok(postList);
     }
 }

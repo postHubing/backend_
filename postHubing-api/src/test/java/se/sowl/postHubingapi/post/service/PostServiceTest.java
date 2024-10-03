@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
+import se.sowl.postHubingapi.response.PostListResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.repository.PostRepository;
 import se.sowl.postHubingdomain.user.domain.User;
@@ -61,10 +62,10 @@ class PostServiceTest {
             //given
 
             //when
-            List<Post> postLists = postService.getPostList();
+            List<PostListResponse> postListResponses = postService.getPostList();
 
             //then
-            assertEquals(5, postLists.size(),"저장된 게시물은 5개이여야합니다.");
+            assertEquals(5, postListResponses.size(),"저장된 게시물은 5개이여야합니다.");
         }
 
     }

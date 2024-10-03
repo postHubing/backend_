@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.post.exception.PostException;
+import se.sowl.postHubingapi.response.PostCommentResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.domain.PostComment;
 import se.sowl.postHubingdomain.post.domain.PostContent;
@@ -73,7 +74,7 @@ class PostCommentServiceTest {
             }
             postCommentRepository.saveAll(testPostComments);
             //when
-            List<PostComment> postCommentList = postCommentService.getCommentsByPostId(testPost.getId());
+            List<PostCommentResponse> postCommentList = postCommentService.getCommentsByPostId(testPost.getId());
 
             //then
             assertEquals(3,postCommentList.size(),"게시판 내의 댓글은 3개이여야합니다.");
@@ -85,7 +86,7 @@ class PostCommentServiceTest {
             //given
 
             //when
-            List<PostComment> postCommentList = postCommentService.getCommentsByPostId(testPost.getId());
+            List<PostCommentResponse> postCommentList = postCommentService.getCommentsByPostId(testPost.getId());
             //then
             assertEquals(0,postCommentList.size(),"게시판 내의 댓글이 없습니다.");
         }

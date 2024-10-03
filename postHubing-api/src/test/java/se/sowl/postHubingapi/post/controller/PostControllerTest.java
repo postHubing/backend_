@@ -14,6 +14,7 @@ import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.oauth.service.OAuthService;
 import se.sowl.postHubingapi.post.dto.PostDTO;
 import se.sowl.postHubingapi.post.service.PostService;
+import se.sowl.postHubingapi.response.PostListResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.user.domain.CustomOAuth2User;
 import se.sowl.postHubingdomain.user.domain.User;
@@ -42,7 +43,7 @@ class PostControllerTest {
 
     private User testUser;
 
-    private List<Post> testPostLists;
+    private List<PostListResponse> testPostLists;
 
     private CustomOAuth2User customOAuth2User;
 
@@ -52,9 +53,10 @@ class PostControllerTest {
         customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
         when(oAuthService.loadUser(any())).thenReturn(customOAuth2User);
 
-        Post post1 = PostFixture.createPost(1L, "testPost1", "content1", testUser.getId());
-        Post post2 = PostFixture.createPost(2L, "testPost2", "content2", testUser.getId());
-        Post post3 = PostFixture.createPost(3L, "testPost3", "content3", testUser.getId());
+        PostListResponse post1 = new PostListResponse(1L, "testPost1", null, null, testUser.getId());
+        PostListResponse post2 = new PostListResponse(2L, "testPost2", null, null, testUser.getId());
+        PostListResponse post3 = new PostListResponse(3L, "testPost3", null, null, testUser.getId());
+
 
         testPostLists = Arrays.asList(post1, post2, post3);
 

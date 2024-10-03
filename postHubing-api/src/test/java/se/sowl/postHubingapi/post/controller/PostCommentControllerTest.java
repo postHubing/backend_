@@ -13,11 +13,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.oauth.service.OAuthService;
 import se.sowl.postHubingapi.post.service.PostCommentService;
+import se.sowl.postHubingapi.response.PostCommentResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.domain.PostComment;
 import se.sowl.postHubingdomain.user.domain.CustomOAuth2User;
 import se.sowl.postHubingdomain.user.domain.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +48,7 @@ class PostCommentControllerTest {
 
     private Post testPost;
 
-    private List<PostComment> testPostCommentList;
+    private List<PostCommentResponse> testPostCommentList;
 
     @BeforeEach
     void setUp(){
@@ -61,11 +63,14 @@ class PostCommentControllerTest {
         testPostCommentList = new ArrayList<>();
         for (int i=1; i<=3; i++){
             testPostCommentList.add(
-                    PostComment.builder()
-                            .user(testUser)
-                            .post(testPost)
-                            .content("게시판 내용"+i)
-                            .build()
+                    new PostCommentResponse(
+                            (long) i,
+                            testUser.getId(),
+                            1L,
+                            testUser.getName(),
+                            "게시판 내용" + i,
+                            LocalDateTime.now()
+                    )
             );
 
         }

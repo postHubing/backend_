@@ -2,7 +2,9 @@ package se.sowl.postHubingapi.post.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.sowl.postHubingapi.post.exception.PostException;
+import se.sowl.postHubingapi.response.PostCommentResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.domain.PostComment;
 import se.sowl.postHubingdomain.post.repository.PostCommentRepository;
@@ -19,12 +21,17 @@ public class PostCommentService {
 
     private final PostRepository postRepository;
 
-    public List<PostComment> getCommentsByPostId(Long postId) {
+    @Transactional
+    public List<PostCommentResponse> getCommentsByPostId(Long postId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostException.PostNotFoundException::new);
 
-        return postCommentRepository.findByPostId(post.getId());
+        List<PostComment> comments = postCommentRepository.findByPostId(post.getId());
+
+        return comments.stream()
+                .map(PostCommentResponse::from)
+                .toList();
     }
 
 }
