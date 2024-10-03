@@ -50,7 +50,6 @@ public class User {
         this.email = email;
         this.provider = provider;
         this.createdAt = createdAt == null ? LocalDateTime.now() : createdAt;
-        //
     }
 
     public void updateNickname(String nickname) {
