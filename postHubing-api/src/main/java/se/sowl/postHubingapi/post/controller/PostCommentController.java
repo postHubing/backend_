@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import se.sowl.postHubingapi.common.CommonResponse;
 import se.sowl.postHubingapi.post.service.PostCommentService;
 import se.sowl.postHubingapi.response.PostCommentResponse;
-import se.sowl.postHubingdomain.post.domain.PostComment;
 
 import java.util.List;
 
@@ -21,4 +20,13 @@ public class PostCommentController {
            List<PostCommentResponse> postCommentList = postCommentService.getCommentsByPostId(postId);
            return CommonResponse.ok(postCommentList);
     }
+    @PostMapping("/create")
+    public CommonResponse<PostCommentResponse> createComment(
+            @RequestParam("postId") Long postId,
+            @RequestParam("userId") Long userId,
+            @RequestBody String content) {
+        PostCommentResponse createdComment = postCommentService.createComment(postId, content, userId);
+        return CommonResponse.ok(createdComment);
+    }
+
 }

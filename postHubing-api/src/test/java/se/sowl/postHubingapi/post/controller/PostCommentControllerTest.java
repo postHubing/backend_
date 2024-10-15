@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -114,6 +115,63 @@ class PostCommentControllerTest {
             // When & Then
             mockMvc.perform(get("/api/postComments/list")
                             .param("postId", String.valueOf(invalidPostId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("Invalid postId"));
+        }
+    }
+    @Nested
+    @DisplayName("댓글 생성 테스트")
+    class CreatePostComment{
+        @Test
+        @DisplayName("POST /api/postComments/create, 댓글 생성 성공")
+        @WithMockUser
+        void createPostCommentTest() throws Exception{
+            //given
+            Long postId = 1L;
+            String content = "테스트 댓글 내용";
+            //when
+            when(postCommentService.createComment(postId, content, testUser.getId())).thenReturn(
+                    new PostCommentResponse(
+                            1L,
+                            testUser.getId(),
+                            postId,
+                            testUser.getName(),
+                            content,
+                            LocalDateTime.now()
+                    )
+            );
+            //then
+            mockMvc.perform(post("/api/postComments/create")
+                            .param("postId",String.valueOf(postId))
+                            .param("userId",String.valueOf(testUser.getId()))
+                            .content(content)
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("성공"))
+                    .andExpect(jsonPath("$.result.userId").value(testUser.getId()))
+                    .andExpect(jsonPath("$.result.postId").value(postId))
+                    .andExpect(jsonPath("$.result.userName").value(testUser.getName()))
+                    .andExpect(jsonPath("$.result.content").value(content));
+        }
+        @Test
+        @DisplayName("POST /api/postComments/create - 댓글 생성 실패")
+        @WithMockUser
+        void createPostCommentFailTest() throws Exception{
+            //given
+            Long postId = 1L;
+            String content = "테스트 댓글 내용";
+            when(postCommentService.createComment(postId, content, testUser.getId())).thenThrow(new IllegalArgumentException("Invalid postId"));
+
+            //when & then
+            mockMvc.perform(post("/api/postComments/create")
+                            .param("postId",String.valueOf(postId))
+                            .param("userId",String.valueOf(testUser.getId()))
+                            .content(content)
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
