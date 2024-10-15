@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.post.exception.PostException;
+import se.sowl.postHubingapi.post.exception.UserException;
 import se.sowl.postHubingapi.response.PostCommentResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.domain.PostComment;
@@ -102,6 +103,47 @@ class PostCommentServiceTest {
                     "존재하지 않는 ID로 조회시 PostNotFoundException가 발생해야 합니다.");
 
         }
+
+    }
+    @Nested
+    @DisplayName("댓글 생성")
+    class createPostComment{
+        @Test
+        @DisplayName("댓글 생성 성공")
+        void testCreateCommentSuccess(){
+            //given
+            String content = "테스트 댓글 내용";
+            //when
+            PostCommentResponse postCommentResponse = postCommentService.createComment(testPost.getId(), content, testUser.getId());
+            //then
+            assertNotNull(postCommentResponse, "응답값이 null이 아니어야 합니다.");
+            assertEquals(content, postCommentResponse.getContent(), "댓글에 입력 내용과 일치해야 합니다.");
+            assertEquals(testUser.getId(), postCommentResponse.getUserId(), "댓글을 작성한 사용자와 일치해야 합니다.");
+            assertEquals(testPost.getId(), postCommentResponse.getPostId(), "댓글이 작성된 게시물과 일치해야 합니다.");
+        }
+        @Test
+        @DisplayName("존재하지 않는 게시판에 댓글 생성 시도")
+        void testCreateCommentFailNotExistingPost(){
+            //given
+            Long notExistingPostId = 9999L;
+            String content = "테스트 댓글 내용";
+            //when & then
+            assertThrows(PostException.PostNotFoundException.class,
+                    () -> postCommentService.createComment(notExistingPostId, content, testUser.getId()),
+                    "존재하지 않는 게시글 ID로 댓글 생성 시 PostNotFoundException이 발생해야 합니다.");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자가 댓글 생성 시도")
+        void testCreateCommentFailNotExistingUser(){
+            //given
+            Long notExistingUserId = 9999L;
+            String content = "테스트 댓글 내용";
+            //when & then
+            assertThrows(UserException.UserNotFoundException.class, ()-> postCommentService.createComment(testPost.getId(),content, notExistingUserId),
+                    "존재하지 않는 사용자 ID로 댓글 생성 시 UserNotFoundException이 발생해야 합니다.");
+        }
+
 
     }
 }
