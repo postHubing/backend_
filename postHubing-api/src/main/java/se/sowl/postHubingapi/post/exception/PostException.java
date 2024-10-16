@@ -21,4 +21,9 @@ public class PostException extends RuntimeException{
             super("게시글 수정 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
     }
+    public static class CommentContentTooShortException extends PostException{
+        public CommentContentTooShortException(){
+            super("댓글 내용은 2자 이상이여야합니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
 }

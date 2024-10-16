@@ -40,6 +40,10 @@ public class PostCommentService {
 
     @Transactional
     public PostCommentResponse createComment(Long postId, String content, Long userId) {
+        if (content.length()<2){
+            throw new PostException.CommentContentTooShortException();
+        }
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostException.PostNotFoundException::new);
 

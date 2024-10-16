@@ -144,6 +144,16 @@ class PostCommentServiceTest {
                     "존재하지 않는 사용자 ID로 댓글 생성 시 UserNotFoundException이 발생해야 합니다.");
         }
 
+        @Test
+        @DisplayName("댓글 생성시 댓글갈이 2개이상으로 생성")
+        void testCreateCommentFailContentLength(){
+            //given
+            String content = "A";
+            //when & then
+            assertThrows(PostException.CommentContentTooShortException.class, ()-> postCommentService.createComment(testPost.getId(), content, testUser.getId()),
+                    "댓글 내용이 2자 이상이어야 합니다.");
+        }
+
 
     }
 }
