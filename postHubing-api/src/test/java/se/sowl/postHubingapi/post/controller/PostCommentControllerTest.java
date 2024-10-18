@@ -158,19 +158,20 @@ class PostCommentControllerTest {
                     .andExpect(jsonPath("$.result.userName").value(testUser.getName()))
                     .andExpect(jsonPath("$.result.content").value(content));
         }
-        @Test
-        @DisplayName("POST /api/postComments/create - 댓글 생성 실패")
-        @WithMockUser
-        void createPostCommentFailTest() throws Exception{
-            //given
-            Long postId = 1L;
-            String content = "테스트 댓글 내용";
-            when(postCommentService.createComment(postId, content, testUser.getId())).thenThrow(new IllegalArgumentException("Invalid postId"));
 
-            //when & then
+        @Test
+        @DisplayName("POST /api/postComments/create - 잘못된 postId일 경우")
+        @WithMockUser
+        void createPostCommentWithInvalidPostIdTest() throws Exception {
+            // Given
+            Long invalidPostId = -1L;
+            String content = "테스트 댓글 내용";
+            when(postCommentService.createComment(invalidPostId, content, testUser.getId())).thenThrow(new IllegalArgumentException("Invalid postId"));
+
+            // When & Then
             mockMvc.perform(post("/api/postComments/create")
-                            .param("postId",String.valueOf(postId))
-                            .param("userId",String.valueOf(testUser.getId()))
+                            .param("postId", String.valueOf(invalidPostId))
+                            .param("userId", String.valueOf(testUser.getId()))
                             .content(content)
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
