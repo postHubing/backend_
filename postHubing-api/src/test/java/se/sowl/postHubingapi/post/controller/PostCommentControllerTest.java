@@ -179,6 +179,29 @@ class PostCommentControllerTest {
                     .andExpect(jsonPath("$.code").value("FAIL"))
                     .andExpect(jsonPath("$.message").value("Invalid postId"));
         }
+        @Test
+        @DisplayName("POST /api/postComments/create - 존재하지 않는 userId일 경우")
+        @WithMockUser
+        void createPostCommentWithInvaildUserIdTest() throws Exception{
+            //given
+            Long postId = 1L;
+            String content = "테스트 댓글 내용";
+            Long invalidUserId = -1L;
+
+            //when
+            when(postCommentService.createComment(postId, content, invalidUserId)).thenThrow(new IllegalArgumentException("Invalid userId"));
+
+            //then
+            mockMvc.perform(post("/api/postComments/create")
+                            .param("postId", String.valueOf(postId))
+                            .param("userId", String.valueOf(invalidUserId))
+                            .content(content)
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("Invalid userId"));
+        }
     }
 
 }
