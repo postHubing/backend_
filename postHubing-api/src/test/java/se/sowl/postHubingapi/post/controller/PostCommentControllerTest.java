@@ -189,7 +189,7 @@ class PostCommentControllerTest {
             Long invalidUserId = -1L;
 
             //when
-            when(postCommentService.createComment(postId, content, invalidUserId)).thenThrow(new IllegalArgumentException("Invalid userId"));
+            when(postCommentService.createComment(postId, content, invalidUserId)).thenThrow(new IllegalArgumentException("잘못된 userId"));
 
             //then
             mockMvc.perform(post("/api/postComments/create")
@@ -200,7 +200,30 @@ class PostCommentControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.code").value("FAIL"))
-                    .andExpect(jsonPath("$.message").value("Invalid userId"));
+                    .andExpect(jsonPath("$.message").value("잘못된 userId"));
+        }
+
+        @Test
+        @DisplayName("POST /api/postComments/create - 댓글 내용이 너무 짧은 경우")
+        @WithMockUser
+        void createPostCommentWithShortContentTest() throws Exception{
+            //given
+            Long postId = 1L;
+            String content = "1";
+
+            //when
+            when(postCommentService.createComment(postId, content, testUser.getId())).thenThrow(new IllegalArgumentException("댓글 내용은 2자 이상이여야합니다."));
+
+            //then
+            mockMvc.perform(post("/api/postComments/create")
+                            .param("postId", String.valueOf(postId))
+                            .param("userId", String.valueOf(testUser.getId()))
+                            .content(content)
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("댓글 내용은 2자 이상이여야합니다."));
         }
     }
 
