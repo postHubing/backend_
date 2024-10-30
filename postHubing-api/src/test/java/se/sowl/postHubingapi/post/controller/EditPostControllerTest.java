@@ -25,9 +25,11 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -47,101 +49,89 @@ class EditPostControllerTest {
     private EditPostService editPostService;
 
     @MockBean
-    private OAuthService oAuthService;
-
-    private CustomOAuth2User customOAuth2User;
-
-    private User testUser;
-
-    private Post testPost;
-
-    private EditPostRequest testRequest;
-
-    private PostDetailResponse testResponse;
-
-    @MockBean
     private UserRepository userRepository;
 
-    @BeforeEach
-    void setUp(){
-        testUser = UserFixture.createUser(1L, "테스트", "테스트유저", "test@example.com", "naver");
-        customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
+    private CustomOAuth2User customOAuth2User;
+    private User testUser;
 
-        testPost = Post.builder()
-                .title("테스트코드")
-                .userId(testUser.getId())
-                .build();
+    @BeforeEach
+    void setUp() {
+        testUser = UserFixture.createUser(1L, "테스트1", "테스트유저1", "test1@example.com", "naver");
+        customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
     }
 
-    @Nested
-    @DisplayName("게시물 수정 및 생성테스트 ")
-    class EditPostTest{
-        @Test
-        @DisplayName("Post /api/posts/edit, 새 게시물")
-        void createNewPost() throws Exception{
-            //given
-            testRequest = EditPostRequest.builder()
-                    .title("새 게시물 제목")
-                    .content("새 게시물 내용")
-                    .build();
-            testResponse = PostDetailResponse.builder()
-                    .id(1L)
-                    .title("새 게시물 제목")
-                    .content("새 게시물 내용")
-                    .createAt(LocalDateTime.now())
-                    .authorName(testUser.getName())
-                    .build();
-            //when
-            when(editPostService.editPost(testUser.getId(), testRequest)).thenReturn(testResponse);
+    @Test
+    @DisplayName("Post /api/posts/edit, 새 게시물")
+    void createNewPost() throws Exception {
+        // given
+        EditPostRequest request = EditPostRequest.builder()
+                .title("새 게시물")
+                .content("새 게시물 내용")
+                .build();
 
-            //then
-            mockMvc.perform(post("/api/posts/edit")
-                            .with(oauth2Login().oauth2User(customOAuth2User))
-                            .content(objectMapper.writeValueAsString(testRequest))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .with(csrf()))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.code").value("SUCCESS"))
-                    .andExpect(jsonPath("$.message").value("성공"))
-                    .andExpect(jsonPath("$.result.id").value(testPost.getId()))
-                    .andExpect(jsonPath("$.result.title").value("새 게시물 제목"))
-                    .andExpect(jsonPath("$.result.content").value("새 게시물 내용"))
-                    .andExpect(jsonPath("$.result.authorName").value(testUser.getName()));
+        PostDetailResponse expectedResponse = PostDetailResponse.builder()
+                .id(1L)
+                .title("새 게시물")
+                .content("새 게시물 내용")
+                .createAt(LocalDateTime.now())
+                .authorName(testUser.getName())
+                .build();
 
-        }
+        // when
+        when(editPostService.editPost(eq(testUser.getId()), any(EditPostRequest.class)))
+                .thenReturn(expectedResponse);
 
-        @Test
-        @DisplayName("POST /api/posts/edit - 기존 게시물 수정")
-        void updateExistingPost() throws Exception{
-            //given
-            testRequest = EditPostRequest.builder()
-                    .postId(1L)
-                    .title("수정된 제목")
-                    .content("수정된 내용")
-                    .build();
-            testResponse = PostDetailResponse.builder()
-                    .id(1L)
-                    .title("수정된 제목")
-                    .content("수정된 내용")
-                    .createAt(LocalDateTime.now())
-                    .authorName(testUser.getName())
-                    .build();
-            //when
-            when(editPostService.editPost(testUser.getId(), testRequest)).thenReturn(testResponse);
+        // then
+        mockMvc.perform(post("/api/posts/edit")
+                        .with(oauth2Login().oauth2User(customOAuth2User))
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.message").value("성공"))
+                .andExpect(jsonPath("$.result.id").value(1L))
+                .andExpect(jsonPath("$.result.title").value("새 게시물"))
+                .andExpect(jsonPath("$.result.content").value("새 게시물 내용"))
+                .andExpect(jsonPath("$.result.authorName").value(testUser.getName()))
+                .andDo(print());  // 응답 결과를 콘솔에 출력
+    }
 
-            //then
-            mockMvc.perform(post("/api/posts/edit")
-                            .with(oauth2Login().oauth2User(customOAuth2User))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(testRequest))
-                            .with(csrf()))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.code").value("SUCCESS"))
-                    .andExpect(jsonPath("$.message").value("성공"))
-                    .andExpect(jsonPath("$.result.id").value(testPost.getId()))
-                    .andExpect(jsonPath("$.result.title").value("수정된 게시물 제목"))
-                    .andExpect(jsonPath("$.result.content").value("수정된 게시물 내용"))
-                    .andExpect(jsonPath("$.result.authorName").value(testUser.getName()));
-        }
+    @Test
+    @DisplayName("POST /api/posts/edit - 기존 게시물 수정")
+    void updateExistingPost() throws Exception {
+        // given
+        EditPostRequest request = EditPostRequest.builder()
+                .postId(1L)
+                .title("수정된 게시물")
+                .content("수정된 내용")
+                .build();
+
+        PostDetailResponse expectedResponse = PostDetailResponse.builder()
+                .id(1L)
+                .title("수정된 게시물")
+                .content("수정된 내용")
+                .createAt(LocalDateTime.now())
+                .authorName(testUser.getName())
+                .build();
+
+        // when
+        when(editPostService.editPost(eq(testUser.getId()), any(EditPostRequest.class)))
+                .thenReturn(expectedResponse);
+
+        // then
+        mockMvc.perform(post("/api/posts/edit")
+                        .with(oauth2Login().oauth2User(customOAuth2User))
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("SUCCESS"))
+                .andExpect(jsonPath("$.message").value("성공"))
+                .andExpect(jsonPath("$.result.id").value(1L))
+                .andExpect(jsonPath("$.result.title").value("수정된 게시물"))
+                .andExpect(jsonPath("$.result.content").value("수정된 내용"))
+                .andExpect(jsonPath("$.result.authorName").value(testUser.getName()))
+                .andDo(print());  // 응답 결과를 콘솔에 출력
     }
 }
