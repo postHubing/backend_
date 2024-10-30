@@ -122,6 +122,8 @@ class PostCommentControllerTest {
                     .andExpect(jsonPath("$.message").value("Invalid postId"));
         }
     }
+
+
     @Nested
     @DisplayName("댓글 생성 테스트")
     class CreatePostComment{
@@ -166,7 +168,7 @@ class PostCommentControllerTest {
             // Given
             Long invalidPostId = -1L;
             String content = "테스트 댓글 내용";
-            when(postCommentService.createComment(invalidPostId, content, testUser.getId())).thenThrow(new IllegalArgumentException("Invalid postId"));
+            when(postCommentService.createComment(invalidPostId, content, testUser.getId())).thenThrow(new IllegalArgumentException("잘못된 postId"));
 
             // When & Then
             mockMvc.perform(post("/api/postComments/create")
@@ -177,7 +179,7 @@ class PostCommentControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.code").value("FAIL"))
-                    .andExpect(jsonPath("$.message").value("Invalid postId"));
+                    .andExpect(jsonPath("$.message").value("잘못된 postId"));
         }
         @Test
         @DisplayName("POST /api/postComments/create - 존재하지 않는 userId일 경우")
@@ -224,6 +226,91 @@ class PostCommentControllerTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.code").value("FAIL"))
                     .andExpect(jsonPath("$.message").value("댓글 내용은 2자 이상이여야합니다."));
+        }
+    }
+
+
+
+    @Nested
+    @DisplayName("댓글 삭제 테스트")
+    class DeletePostComment{
+        @Test
+        @DisplayName("POST /api/postComments/delete, 댓글 삭제 성공")
+        @WithMockUser
+        void deletePostCommentTest() throws Exception{
+            //given
+            Long postId = 1L;
+            Long userId = testUser.getId();
+            PostComment postComment = PostComment.builder()
+                    .post(testPost)
+                    .user(testUser)
+                    .content("테스트 댓글 내용")
+                    .build();
+            //when
+            when(postCommentService.deleteComment(postId, userId)).thenReturn(
+                    new PostCommentResponse(
+                            postComment.getId(),
+                            testUser.getId(),
+                            postId,
+                            testUser.getName(),
+                            postComment.getContent(),
+                            postComment.getCreatedAt()
+                    )
+            );
+            //then
+            mockMvc.perform(post("/api/postComments/delete")
+                            .param("postId", String.valueOf(postId))
+                            .param("userId", String.valueOf(userId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("성공"))
+                    .andExpect(jsonPath("$.result.userId").value(testUser.getId()))
+                    .andExpect(jsonPath("$.result.postId").value(postId))
+                    .andExpect(jsonPath("$.result.userName").value(testUser.getName()))
+                    .andExpect(jsonPath("$.result.content").value(postComment.getContent()));
+        }
+        @Test
+        @DisplayName("POST /api/postComments/delete - 잘못된 postId일 경우")
+        @WithMockUser
+        void deletePostCommentWithInvalidPostIdTest() throws Exception {
+            // Given
+            Long invalidPostId = -1L;
+            Long userId = testUser.getId();
+
+            // When & Then
+            when(postCommentService.deleteComment(invalidPostId, userId)).thenThrow(new IllegalArgumentException("잘못된 postId"));
+
+            mockMvc.perform(post("/api/postComments/delete")
+                            .param("postId", String.valueOf(invalidPostId))
+                            .param("userId", String.valueOf(userId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("잘못된 postId"));
+        }
+
+        @Test
+        @DisplayName("POST /api/postComments/delete - 존재하지 않는 userId일 경우")
+        @WithMockUser
+        void deletePostCommentWithInvalidUserIdTest() throws Exception {
+            // Given
+            Long postId = 1L;
+            Long invalidUserId = -1L;
+
+            // When & Then
+            when(postCommentService.deleteComment(postId, invalidUserId)).thenThrow(new IllegalArgumentException("잘못된 userId"));
+
+            mockMvc.perform(post("/api/postComments/delete")
+                            .param("postId", String.valueOf(postId))
+                            .param("userId", String.valueOf(invalidUserId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("잘못된 userId"));
         }
     }
 

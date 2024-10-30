@@ -1,6 +1,8 @@
 package se.sowl.postHubingapi.post.controller;
 
+import com.sun.security.auth.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import se.sowl.postHubingapi.common.CommonResponse;
 import se.sowl.postHubingapi.post.service.PostCommentService;
@@ -20,6 +22,8 @@ public class PostCommentController {
            List<PostCommentResponse> postCommentList = postCommentService.getCommentsByPostId(postId);
            return CommonResponse.ok(postCommentList);
     }
+
+
     @PostMapping("/create")
     public CommonResponse<PostCommentResponse> createComment(
             @RequestParam("postId") Long postId,
@@ -29,4 +33,12 @@ public class PostCommentController {
         return CommonResponse.ok(createdComment);
     }
 
+
+    @PostMapping("/delete")
+    public CommonResponse<PostCommentResponse> deleteComment(
+            @RequestParam("postId") Long postId,
+            @RequestParam("userId") Long userId) {
+        PostCommentResponse deletedComment = postCommentService.deleteComment(postId,userId);
+        return CommonResponse.ok(deletedComment);
+    }
 }
