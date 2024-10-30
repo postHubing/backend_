@@ -1,5 +1,6 @@
 package se.sowl.postHubingapi.post.service;
 
+import com.mysql.cj.log.Log;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -153,7 +154,53 @@ class PostCommentServiceTest {
             assertThrows(PostException.CommentContentTooShortException.class, ()-> postCommentService.createComment(testPost.getId(), content, testUser.getId()),
                     "댓글 내용이 2자 이상이어야 합니다.");
         }
+    }
 
 
+    @Nested
+    @DisplayName("댓글 삭제")
+    class deletePostComment{
+        @Test
+        @DisplayName("댓글 삭제 성공")
+        void testDeleteCommentSuccess(){
+            //given
+            Long postId = testPost.getId();
+            Long userId = testUser.getId();
+            PostComment postComment = PostComment.builder()
+                    .post(testPost)
+                    .user(testUser)
+                    .content("테스트 댓글 내용")
+                    .build();
+            postCommentRepository.save(postComment);
+            //when
+            PostCommentResponse postCommentResponse = postCommentService.deleteComment(postId, userId);
+
+            //then
+            assertNotNull(postCommentResponse, "응답값이 null이 아니어야 합니다.");
+            assertEquals(postComment.getContent(), postCommentResponse.getContent(), "삭제된 댓글의 내용과 일치해야 합니다.");
+
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 게시판에 댓글 삭제 시도")
+        void testDeleteCommentFailNotExistingPost(){
+            //given
+            Long postId = 9999L;
+            Long userId = testUser.getId();
+            //when & then
+            assertThrows(PostException.PostNotFoundException.class, ()-> postCommentService.deleteComment(postId, userId),
+                    "존재하지 않는 게시글 ID로 댓글 삭제 시 PostNotFoundException이 발생해야 합니다.");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자가 댓글 삭제 시도")
+        void testDeleteCommentFailNotExistingUser(){
+            //given
+            Long postId = testPost.getId();
+            Long userId = 9999L;
+            //when & then
+            assertThrows(UserException.UserNotFoundException.class , ()-> postCommentService.deleteComment(postId, userId),
+                "존재하지 않은 사용자 ID로 댓글 삭제시 UserNotFoundException이 발생해야 합니다.");
+        }
     }
 }

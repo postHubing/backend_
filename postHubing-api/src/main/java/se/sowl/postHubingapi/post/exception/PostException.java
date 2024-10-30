@@ -26,4 +26,9 @@ public class PostException extends RuntimeException{
             super("댓글 내용은 2자 이상이여야합니다.", HttpStatus.BAD_REQUEST);
         }
     }
+    public static class CommentNotFoundException extends PostException{
+        public CommentNotFoundException(){
+            super("존재하지 않는 댓글입니다.", HttpStatus.NOT_FOUND);
+        }
+    }
 }

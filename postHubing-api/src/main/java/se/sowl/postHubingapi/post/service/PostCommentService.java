@@ -59,8 +59,22 @@ public class PostCommentService {
         postCommentRepository.save(postComment);
 
         return PostCommentResponse.from(postComment);
+    }
 
+    @Transactional
+    public PostCommentResponse deleteComment(Long postId, Long userId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostException.PostNotFoundException::new);
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserException.UserNotFoundException::new);
+
+        PostComment postComment = postCommentRepository.findByPostAndUser(post, user)
+                .orElseThrow(PostException.CommentNotFoundException::new);
+
+        postCommentRepository.delete(postComment);
+
+        return PostCommentResponse.from(postComment);
     }
 
 }
