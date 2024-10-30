@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,7 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -56,13 +58,14 @@ class EditPostControllerTest {
     private EditPostRequest testRequest;
 
     private PostDetailResponse testResponse;
-    @Autowired
+
+    @MockBean
     private UserRepository userRepository;
 
     @BeforeEach
     void setUp(){
         testUser = UserFixture.createUser(1L, "테스트", "테스트유저", "test@example.com", "naver");
-        testUser = userRepository.save(testUser);
+        customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
 
         testPost = Post.builder()
                 .title("테스트코드")
@@ -70,7 +73,7 @@ class EditPostControllerTest {
                 .build();
     }
 
-    /*@Nested
+    @Nested
     @DisplayName("게시물 수정 및 생성테스트 ")
     class EditPostTest{
         @Test
@@ -93,10 +96,10 @@ class EditPostControllerTest {
 
             //then
             mockMvc.perform(post("/api/posts/edit")
-                            .contentType(MediaType.APPLICATION_JSON)
+                            .with(oauth2Login().oauth2User(customOAuth2User))
                             .content(objectMapper.writeValueAsString(testRequest))
-                            .with(csrf())
-                            .principal(testUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.code").value("SUCCESS"))
                     .andExpect(jsonPath("$.message").value("성공"))
@@ -128,17 +131,17 @@ class EditPostControllerTest {
 
             //then
             mockMvc.perform(post("/api/posts/edit")
+                            .with(oauth2Login().oauth2User(customOAuth2User))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(testRequest))
-                            .with(csrf())
-                            .principal(testUser))
+                            .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.code").value("SUCCESS"))
                     .andExpect(jsonPath("$.message").value("성공"))
                     .andExpect(jsonPath("$.result.id").value(testPost.getId()))
-                    .andExpect(jsonPath("$.result.title").value("수정된 제목"))
-                    .andExpect(jsonPath("$.result.content").value("수정된 내용"))
+                    .andExpect(jsonPath("$.result.title").value("수정된 게시물 제목"))
+                    .andExpect(jsonPath("$.result.content").value("수정된 게시물 내용"))
                     .andExpect(jsonPath("$.result.authorName").value(testUser.getName()));
         }
-    }*/
+    }
 }

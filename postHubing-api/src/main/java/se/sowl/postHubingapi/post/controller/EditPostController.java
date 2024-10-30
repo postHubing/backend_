@@ -20,7 +20,10 @@ public class EditPostController {
     private final EditPostService editPostService;
 
     @PostMapping("/edit")
-    public CommonResponse<PostDetailResponse> editPost(@AuthenticationPrincipal CustomOAuth2User user, @RequestBody EditPostRequest request){
+    public CommonResponse<PostDetailResponse> editPost(
+            @AuthenticationPrincipal CustomOAuth2User user,
+            @RequestBody EditPostRequest request
+    ){
         PostDetailResponse postDetailResponse = editPostService.editPost(user.getUserId(), request);
         return CommonResponse.ok(postDetailResponse);
     }
