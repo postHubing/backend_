@@ -3,6 +3,7 @@ package se.sowl.postHubingapi.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.sowl.postHubingapi.post.dto.PostCommentRequest;
 import se.sowl.postHubingapi.post.exception.PostException;
 import se.sowl.postHubingapi.post.exception.UserException;
 import se.sowl.postHubingapi.response.PostCommentResponse;
@@ -39,21 +40,21 @@ public class PostCommentService {
     }
 
     @Transactional
-    public PostCommentResponse createComment(Long postId, String content, Long userId) {
-        if (content.length()<2){
+    public PostCommentResponse createComment(PostCommentRequest request) {
+        if (request.getContent().length()<2){
             throw new PostException.CommentContentTooShortException();
         }
 
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(PostException.PostNotFoundException::new);
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(UserException.UserNotFoundException::new);
 
         PostComment postComment = PostComment.builder()
                 .post(post)
                 .user(user)
-                .content(content)
+                .content(request.getContent())
                 .build();
 
         postCommentRepository.save(postComment);
@@ -62,11 +63,11 @@ public class PostCommentService {
     }
 
     @Transactional
-    public PostCommentResponse deleteComment(Long postId, Long userId){
-        Post post = postRepository.findById(postId)
+    public PostCommentResponse deleteComment(PostCommentRequest request) {
+        Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(PostException.PostNotFoundException::new);
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(UserException.UserNotFoundException::new);
 
         PostComment postComment = postCommentRepository.findByPostAndUser(post, user)

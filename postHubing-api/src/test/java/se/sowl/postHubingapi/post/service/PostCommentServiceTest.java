@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
+import se.sowl.postHubingapi.post.dto.PostCommentRequest;
 import se.sowl.postHubingapi.post.exception.PostException;
 import se.sowl.postHubingapi.post.exception.UserException;
 import se.sowl.postHubingapi.response.PostCommentResponse;
@@ -113,24 +114,32 @@ class PostCommentServiceTest {
         @DisplayName("댓글 생성 성공")
         void testCreateCommentSuccess(){
             //given
-            String content = "테스트 댓글 내용";
+            PostCommentRequest request = PostCommentRequest.builder()
+                    .postId(testPost.getId())
+                    .userId(testUser.getId())
+                    .content("테스트 댓글 내용")
+                    .build();
             //when
-            PostCommentResponse postCommentResponse = postCommentService.createComment(testPost.getId(), content, testUser.getId());
+            PostCommentResponse postCommentResponse = postCommentService.createComment(request);
             //then
             assertNotNull(postCommentResponse, "응답값이 null이 아니어야 합니다.");
-            assertEquals(content, postCommentResponse.getContent(), "댓글에 입력 내용과 일치해야 합니다.");
+            assertEquals(request.getContent(), postCommentResponse.getContent(), "댓글에 입력 내용과 일치해야 합니다.");
             assertEquals(testUser.getId(), postCommentResponse.getUserId(), "댓글을 작성한 사용자와 일치해야 합니다.");
             assertEquals(testPost.getId(), postCommentResponse.getPostId(), "댓글이 작성된 게시물과 일치해야 합니다.");
         }
+
         @Test
         @DisplayName("존재하지 않는 게시판에 댓글 생성 시도")
         void testCreateCommentFailNotExistingPost(){
             //given
-            Long notExistingPostId = 9999L;
-            String content = "테스트 댓글 내용";
+            PostCommentRequest request = PostCommentRequest.builder()
+                    .postId(9999L)
+                    .userId(testUser.getId())
+                    .content("테스트 댓글 내용")
+                    .build();
             //when & then
             assertThrows(PostException.PostNotFoundException.class,
-                    () -> postCommentService.createComment(notExistingPostId, content, testUser.getId()),
+                    () -> postCommentService.createComment(request),
                     "존재하지 않는 게시글 ID로 댓글 생성 시 PostNotFoundException이 발생해야 합니다.");
         }
 
@@ -138,10 +147,13 @@ class PostCommentServiceTest {
         @DisplayName("존재하지 않는 사용자가 댓글 생성 시도")
         void testCreateCommentFailNotExistingUser(){
             //given
-            Long notExistingUserId = 9999L;
-            String content = "테스트 댓글 내용";
+            PostCommentRequest request = PostCommentRequest.builder()
+                    .postId(testPost.getId())
+                    .userId(9999L)
+                    .content("테스트 댓글 내용")
+                    .build();
             //when & then
-            assertThrows(UserException.UserNotFoundException.class, ()-> postCommentService.createComment(testPost.getId(),content, notExistingUserId),
+            assertThrows(UserException.UserNotFoundException.class, ()-> postCommentService.createComment(request),
                     "존재하지 않는 사용자 ID로 댓글 생성 시 UserNotFoundException이 발생해야 합니다.");
         }
 
@@ -149,9 +161,13 @@ class PostCommentServiceTest {
         @DisplayName("댓글 생성시 댓글갈이 2개이상으로 생성")
         void testCreateCommentFailContentLength(){
             //given
-            String content = "A";
+            PostCommentRequest request = PostCommentRequest.builder()
+                    .userId(testUser.getId())
+                    .postId(testPost.getId())
+                    .content("A")
+                    .build();
             //when & then
-            assertThrows(PostException.CommentContentTooShortException.class, ()-> postCommentService.createComment(testPost.getId(), content, testUser.getId()),
+            assertThrows(PostException.CommentContentTooShortException.class, ()-> postCommentService.createComment(request),
                     "댓글 내용이 2자 이상이어야 합니다.");
         }
     }
@@ -164,16 +180,18 @@ class PostCommentServiceTest {
         @DisplayName("댓글 삭제 성공")
         void testDeleteCommentSuccess(){
             //given
-            Long postId = testPost.getId();
-            Long userId = testUser.getId();
             PostComment postComment = PostComment.builder()
                     .post(testPost)
                     .user(testUser)
                     .content("테스트 댓글 내용")
                     .build();
             postCommentRepository.save(postComment);
+            PostCommentRequest request = PostCommentRequest.builder()
+                    .postId(testPost.getId())
+                    .userId(testUser.getId())
+                    .build();
             //when
-            PostCommentResponse postCommentResponse = postCommentService.deleteComment(postId, userId);
+            PostCommentResponse postCommentResponse = postCommentService.deleteComment(request);
 
             //then
             assertNotNull(postCommentResponse, "응답값이 null이 아니어야 합니다.");
@@ -185,10 +203,12 @@ class PostCommentServiceTest {
         @DisplayName("존재하지 않는 게시판에 댓글 삭제 시도")
         void testDeleteCommentFailNotExistingPost(){
             //given
-            Long postId = 9999L;
-            Long userId = testUser.getId();
+            PostCommentRequest request = PostCommentRequest.builder()
+                    .postId(9999L)
+                    .userId(testUser.getId())
+                    .build();
             //when & then
-            assertThrows(PostException.PostNotFoundException.class, ()-> postCommentService.deleteComment(postId, userId),
+            assertThrows(PostException.PostNotFoundException.class, ()-> postCommentService.deleteComment(request),
                     "존재하지 않는 게시글 ID로 댓글 삭제 시 PostNotFoundException이 발생해야 합니다.");
         }
 
@@ -196,10 +216,12 @@ class PostCommentServiceTest {
         @DisplayName("존재하지 않는 사용자가 댓글 삭제 시도")
         void testDeleteCommentFailNotExistingUser(){
             //given
-            Long postId = testPost.getId();
-            Long userId = 9999L;
+            PostCommentRequest request = PostCommentRequest.builder()
+                    .postId(testPost.getId())
+                    .userId(9999L)
+                    .build();
             //when & then
-            assertThrows(UserException.UserNotFoundException.class , ()-> postCommentService.deleteComment(postId, userId),
+            assertThrows(UserException.UserNotFoundException.class , ()-> postCommentService.deleteComment(request),
                 "존재하지 않은 사용자 ID로 댓글 삭제시 UserNotFoundException이 발생해야 합니다.");
         }
     }
