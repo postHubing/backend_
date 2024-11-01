@@ -17,8 +17,7 @@ public class PostCommentController {
 
     @GetMapping("/list")
     public CommonResponse<List<PostCommentResponse>> getCommentsByPostId
-            //(@RequestParam("postId") Long postId){
-            (@RequestParam Long postId) {
+            (@RequestParam("postId") Long postId) {
         List<PostCommentResponse> postCommentList = postCommentService.getCommentsByPostId(postId);
         return CommonResponse.ok(postCommentList);
     }
