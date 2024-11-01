@@ -94,7 +94,7 @@ class EditPostControllerTest {
                 .andExpect(jsonPath("$.result.title").value("새 게시물"))
                 .andExpect(jsonPath("$.result.content").value("새 게시물 내용"))
                 .andExpect(jsonPath("$.result.authorName").value(testUser.getName()))
-                .andDo(print());  // 응답 결과를 콘솔에 출력
+                .andDo(print());
     }
 
     @Test
@@ -132,6 +132,6 @@ class EditPostControllerTest {
                 .andExpect(jsonPath("$.result.title").value("수정된 게시물"))
                 .andExpect(jsonPath("$.result.content").value("수정된 내용"))
                 .andExpect(jsonPath("$.result.authorName").value(testUser.getName()))
-                .andDo(print());  // 응답 결과를 콘솔에 출력
+                .andDo(print());
     }
 }

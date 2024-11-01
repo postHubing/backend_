@@ -63,8 +63,6 @@ class PostControllerTest {
     }
 
     @Test
-    // 한글로 테스트 케이스 작성
-    // 게시물 리스트 조회
     @DisplayName("GET /api/posts/list")
     @WithMockUser
     void getPostListTest() throws Exception{
