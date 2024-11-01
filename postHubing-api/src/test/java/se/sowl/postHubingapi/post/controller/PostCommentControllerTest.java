@@ -1,5 +1,7 @@
+
 package se.sowl.postHubingapi.post.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,6 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.oauth.service.OAuthService;
+import se.sowl.postHubingapi.post.dto.PostCommentRequest;
 import se.sowl.postHubingapi.post.service.PostCommentService;
 import se.sowl.postHubingapi.response.PostCommentResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
@@ -26,6 +29,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,6 +37,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(PostCommentController.class)
 class PostCommentControllerTest {
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mockMvc;
@@ -58,16 +65,18 @@ class PostCommentControllerTest {
         when(oAuthService.loadUser(any())).thenReturn(customOAuth2User);
 
         testPost = Post.builder()
+                .id(1L)
                 .title("테스트코드")
                 .userId(testUser.getId())
                 .build();
+
         testPostCommentList = new ArrayList<>();
-        for (int i=1; i<=3; i++){
+        for (int i=1; i<=3; i++) {
             testPostCommentList.add(
                     new PostCommentResponse(
                             (long) i,
                             testUser.getId(),
-                            1L,
+                            testPost.getId(),
                             testUser.getName(),
                             "게시판 내용" + i,
                             LocalDateTime.now()
@@ -88,10 +97,11 @@ class PostCommentControllerTest {
         @WithMockUser
         void getPostCommentListTest() throws Exception{
             //given
-            Long postId = 1L;
+            Long postId = testPost.getId();
 
             //when
-            when(postCommentService.getCommentsByPostId(postId)).thenReturn(testPostCommentList);
+            when(postCommentService.getCommentsByPostId(postId))
+                    .thenReturn(testPostCommentList);
 
             //then
             mockMvc.perform(get("/api/postComments/list")
@@ -103,6 +113,7 @@ class PostCommentControllerTest {
                     .andExpect(jsonPath("$.message").value("성공"))
                     .andExpect(jsonPath("$.result").isArray())
                     .andExpect(jsonPath("$.result.length()").value(3));
+
         }
         @Test
         @DisplayName("GET /api/postComments/list - 잘못된 postId")
@@ -110,7 +121,8 @@ class PostCommentControllerTest {
         void getPostCommentListWithInvalidPostIdTest() throws Exception {
             // Given
             Long invalidPostId = -1L;
-            when(postCommentService.getCommentsByPostId(invalidPostId)).thenThrow(new IllegalArgumentException("Invalid postId"));
+            when(postCommentService.getCommentsByPostId(invalidPostId))
+                    .thenThrow(new IllegalArgumentException("Invalid postId"));
 
             // When & Then
             mockMvc.perform(get("/api/postComments/list")
@@ -124,18 +136,23 @@ class PostCommentControllerTest {
     }
 
 
+
+
     @Nested
     @DisplayName("댓글 생성 테스트")
+    @WithMockUser
     class CreatePostComment{
         @Test
         @DisplayName("POST /api/postComments/create, 댓글 생성 성공")
         @WithMockUser
-        void createPostCommentTest() throws Exception{
-            //given
+        void createPostCommentTest() throws Exception {
+            // given
             Long postId = 1L;
             String content = "테스트 댓글 내용";
-            //when
-            when(postCommentService.createComment(postId, content, testUser.getId())).thenReturn(
+            PostCommentRequest request = new PostCommentRequest(postId, testUser.getId(), content);
+
+            // when
+            when(postCommentService.createComment(any(PostCommentRequest.class))).thenReturn(
                     new PostCommentResponse(
                             1L,
                             testUser.getId(),
@@ -145,11 +162,10 @@ class PostCommentControllerTest {
                             LocalDateTime.now()
                     )
             );
-            //then
+
+            // then
             mockMvc.perform(post("/api/postComments/create")
-                            .param("postId",String.valueOf(postId))
-                            .param("userId",String.valueOf(testUser.getId()))
-                            .content(content)
+                            .content(objectMapper.writeValueAsString(request))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -168,19 +184,20 @@ class PostCommentControllerTest {
             // Given
             Long invalidPostId = -1L;
             String content = "테스트 댓글 내용";
-            when(postCommentService.createComment(invalidPostId, content, testUser.getId())).thenThrow(new IllegalArgumentException("잘못된 postId"));
+            PostCommentRequest request = new PostCommentRequest(invalidPostId, testUser.getId(), content);
+            when(postCommentService.createComment(any(PostCommentRequest.class)))
+                    .thenThrow(new IllegalArgumentException("잘못된 postId"));
 
             // When & Then
             mockMvc.perform(post("/api/postComments/create")
-                            .param("postId", String.valueOf(invalidPostId))
-                            .param("userId", String.valueOf(testUser.getId()))
-                            .content(content)
+                            .content(objectMapper.writeValueAsString(request))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.code").value("FAIL"))
                     .andExpect(jsonPath("$.message").value("잘못된 postId"));
         }
+
         @Test
         @DisplayName("POST /api/postComments/create - 존재하지 않는 userId일 경우")
         @WithMockUser
@@ -189,15 +206,15 @@ class PostCommentControllerTest {
             Long postId = 1L;
             String content = "테스트 댓글 내용";
             Long invalidUserId = -1L;
+            PostCommentRequest request = new PostCommentRequest(postId, invalidUserId, content);
 
             //when
-            when(postCommentService.createComment(postId, content, invalidUserId)).thenThrow(new IllegalArgumentException("잘못된 userId"));
+            when(postCommentService.createComment(any(PostCommentRequest.class)))
+                    .thenThrow(new IllegalArgumentException("잘못된 userId"));
 
             //then
             mockMvc.perform(post("/api/postComments/create")
-                            .param("postId", String.valueOf(postId))
-                            .param("userId", String.valueOf(invalidUserId))
-                            .content(content)
+                            .content(objectMapper.writeValueAsString(request))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
@@ -212,15 +229,15 @@ class PostCommentControllerTest {
             //given
             Long postId = 1L;
             String content = "1";
+            PostCommentRequest request = new PostCommentRequest(postId, testUser.getId(), content);
 
             //when
-            when(postCommentService.createComment(postId, content, testUser.getId())).thenThrow(new IllegalArgumentException("댓글 내용은 2자 이상이여야합니다."));
+            when(postCommentService.createComment(any(PostCommentRequest.class)))
+                    .thenThrow(new IllegalArgumentException("댓글 내용은 2자 이상이여야합니다."));
 
             //then
             mockMvc.perform(post("/api/postComments/create")
-                            .param("postId", String.valueOf(postId))
-                            .param("userId", String.valueOf(testUser.getId()))
-                            .content(content)
+                            .content(objectMapper.writeValueAsString(request))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
@@ -241,13 +258,15 @@ class PostCommentControllerTest {
             //given
             Long postId = 1L;
             Long userId = testUser.getId();
+            PostCommentRequest request = new PostCommentRequest(userId, postId, "테스트 댓글 내용");
+
             PostComment postComment = PostComment.builder()
                     .post(testPost)
                     .user(testUser)
                     .content("테스트 댓글 내용")
                     .build();
             //when
-            when(postCommentService.deleteComment(postId, userId)).thenReturn(
+            when(postCommentService.deleteComment(any(PostCommentRequest.class))).thenReturn(
                     new PostCommentResponse(
                             postComment.getId(),
                             testUser.getId(),
@@ -259,8 +278,7 @@ class PostCommentControllerTest {
             );
             //then
             mockMvc.perform(post("/api/postComments/delete")
-                            .param("postId", String.valueOf(postId))
-                            .param("userId", String.valueOf(userId))
+                            .content(objectMapper.writeValueAsString(request))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -278,13 +296,14 @@ class PostCommentControllerTest {
             // Given
             Long invalidPostId = -1L;
             Long userId = testUser.getId();
+            PostCommentRequest request = new PostCommentRequest(userId, invalidPostId, "테스트 댓글 내용");
 
             // When & Then
-            when(postCommentService.deleteComment(invalidPostId, userId)).thenThrow(new IllegalArgumentException("잘못된 postId"));
+            when(postCommentService.deleteComment(any(PostCommentRequest.class)))
+                    .thenThrow(new IllegalArgumentException("잘못된 postId"));
 
             mockMvc.perform(post("/api/postComments/delete")
-                            .param("postId", String.valueOf(invalidPostId))
-                            .param("userId", String.valueOf(userId))
+                            .content(objectMapper.writeValueAsString(request))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
@@ -299,13 +318,14 @@ class PostCommentControllerTest {
             // Given
             Long postId = 1L;
             Long invalidUserId = -1L;
+            PostCommentRequest request = new PostCommentRequest(invalidUserId, postId, "테스트 댓글 내용");
 
             // When & Then
-            when(postCommentService.deleteComment(postId, invalidUserId)).thenThrow(new IllegalArgumentException("잘못된 userId"));
+            when(postCommentService.deleteComment(any(PostCommentRequest.class)))
+                    .thenThrow(new IllegalArgumentException("잘못된 userId"));
 
             mockMvc.perform(post("/api/postComments/delete")
-                            .param("postId", String.valueOf(postId))
-                            .param("userId", String.valueOf(invalidUserId))
+                            .content(objectMapper.writeValueAsString(request))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
@@ -313,5 +333,4 @@ class PostCommentControllerTest {
                     .andExpect(jsonPath("$.message").value("잘못된 userId"));
         }
     }
-
 }
