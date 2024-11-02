@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import se.sowl.postHubingapi.common.CommonResponse;
 import se.sowl.postHubingapi.post.service.PostService;
+import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingapi.response.PostListResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 
@@ -24,6 +25,12 @@ public class PostController {
     public CommonResponse<List<PostListResponse>> getPostList(){
         List<PostListResponse> postList = postService.getPostList();
         return CommonResponse.ok(postList);
+    }
+
+    @GetMapping("/detail")
+    public CommonResponse<PostDetailResponse> getPostDetail(Long postId){
+        PostDetailResponse response = postService.getPostDetail(postId);
+        return CommonResponse.ok(response);
     }
 }
 
