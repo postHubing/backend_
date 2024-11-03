@@ -10,18 +10,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.oauth.service.OAuthService;
-import se.sowl.postHubingapi.post.dto.PostDTO;
 import se.sowl.postHubingapi.post.service.PostService;
 import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingapi.response.PostListResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
-import se.sowl.postHubingdomain.post.repository.PostRepository;
 import se.sowl.postHubingdomain.user.domain.CustomOAuth2User;
 import se.sowl.postHubingdomain.user.domain.User;
-import se.sowl.postHubingdomain.user.repository.UserRepository;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -115,7 +111,7 @@ class PostControllerTest {
                     .build();
  
             // when
-            when(postService.getPostDetail(testPost.getId())).thenReturn(response);  // postId 변수 사용
+            when(postService.getPostDetail(testPost.getId())).thenReturn(response);
 
             // then
             mockMvc.perform(get("/api/posts/detail")
@@ -128,6 +124,38 @@ class PostControllerTest {
                     .andExpect(jsonPath("$.result.title").value("testPost1"))
                     .andExpect(jsonPath("$.result.content").value("testContent1"))
                     .andExpect(jsonPath("$.result.authorName").value("테스트유저"))
+                    .andDo(print());
+        }
+
+        @Test
+        @DisplayName("GET /api/posts/detail - 게시물 상세 조회 실패")
+        @WithMockUser
+        void getTestPostDetailFail() throws Exception {
+            // given
+            Post testPost = Post.builder()
+                    .id(9999L)
+                    .title("testPost1")
+                    .userId(testUser.getId())
+                    .build();
+
+            PostDetailResponse response = PostDetailResponse.builder()
+                    .id(testPost.getId())
+                    .title("testPost1")
+                    .content("testContent1")
+                    .createAt(LocalDateTime.now())
+                    .authorName("테스트유저")
+                    .build();
+            // when
+            when(postService.getPostDetail(testPost.getId())).thenThrow(new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+
+            // then
+            mockMvc.perform(get("/api/posts/detail")
+                            .param("postId", String.valueOf(testPost.getId()))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("게시물을 찾을 수 없습니다."))
                     .andDo(print());
         }
 
