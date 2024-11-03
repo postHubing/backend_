@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
+import se.sowl.postHubingapi.post.exception.PostException;
+import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingapi.response.PostListResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.repository.PostRepository;
@@ -68,6 +70,37 @@ class PostServiceTest {
             assertEquals(5, postListResponses.size(),"저장된 게시물은 5개이여야합니다.");
         }
 
+    }
+
+    @Nested
+    @DisplayName("게시물 상세 조회")
+    class getPostDetail{
+        @Test
+        @DisplayName("게시물 상세 조회")
+        void getTestPostDetail(){
+            //given
+            Post testPost = testPosts.get(0);
+
+            //when
+            PostDetailResponse response = postService.getPostDetail(testPost.getId());
+
+            //then
+            assertEquals(testPost.getTitle(), response.getTitle(), "게시물 제목이 일치해야합니다.");
+            assertEquals(testPost.getPostContent().getContent(), response.getContent(), "게시물 내용이 일치해야합니다.");
+            assertEquals(testUser.getNickname(), response.getAuthorName(), "게시물 작성자 닉네임이 일치해야합니다.");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 게시물 조회 시 예외 발생")
+        void getPostDetailNotFound() {
+            // given
+            Long nonExistentPostId = 999999L;
+
+            // when & then
+            assertThrows(PostException.PostNotFoundException.class,
+                    () -> postService.getPostDetail(nonExistentPostId),
+                    "존재하지 않는 게시물 조회 시 PostNotFoundException이 발생해야 합니다.");
+        }
     }
 
 }

@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import se.sowl.postHubingapi.common.CommonResponse;
 import se.sowl.postHubingapi.post.service.PostService;
 import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingapi.response.PostListResponse;
-import se.sowl.postHubingdomain.post.domain.Post;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class PostController {
     }
 
     @GetMapping("/detail")
-    public CommonResponse<PostDetailResponse> getPostDetail(Long postId){
+    public CommonResponse<PostDetailResponse> getPostDetail(@RequestParam("postId") Long postId){
         PostDetailResponse response = postService.getPostDetail(postId);
         return CommonResponse.ok(response);
     }
