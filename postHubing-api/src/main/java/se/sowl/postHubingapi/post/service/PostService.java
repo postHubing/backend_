@@ -32,10 +32,10 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostException.PostNotFoundException::new);
 
-        return createPostDetailResponse(post.getUserId(), post);
+        return createPostDetailResponse(post);
     }
 
-    private PostDetailResponse createPostDetailResponse(Long userId, Post post) {
+    private PostDetailResponse createPostDetailResponse(Post post) {
         Long writerId = post.getUserId();
         String writerNickname = getWriterNickname(writerId);
         return PostDetailResponse.from(post, writerNickname);
