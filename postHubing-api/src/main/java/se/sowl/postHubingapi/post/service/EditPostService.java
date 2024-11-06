@@ -5,12 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.sowl.postHubingapi.post.dto.EditPostRequest;
 import se.sowl.postHubingapi.post.exception.PostException;
-import se.sowl.postHubingapi.post.exception.UserException;
 import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingdomain.post.domain.Post;
 import se.sowl.postHubingdomain.post.domain.PostContent;
 import se.sowl.postHubingdomain.post.repository.PostRepository;
-import se.sowl.postHubingdomain.user.domain.User;
 import se.sowl.postHubingdomain.user.repository.UserRepository;
 
 @RequiredArgsConstructor
