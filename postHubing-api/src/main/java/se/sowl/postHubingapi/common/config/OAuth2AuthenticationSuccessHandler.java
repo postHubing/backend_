@@ -20,7 +20,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                                         Authentication authentication) throws IOException, ServletException {
         HttpSession session = request.getSession(true);
         session.setAttribute("user", authentication.getPrincipal());
-        String targetUrl = "http://localhost:8080/api/users/me";
+        String targetUrl = "http://localhost:3000/posts/";
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
 
     }
