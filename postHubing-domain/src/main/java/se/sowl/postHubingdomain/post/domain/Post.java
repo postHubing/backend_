@@ -40,10 +40,11 @@ public class Post {
     private PostContent postContent;
 
     @Builder
-    public Post(Long id, String title, Long userId) {
+    public Post(Long id, String title, Long userId, String thumbnailUrl) {
         this.id = id;
         this.title = title;
         this.userId = userId;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
 

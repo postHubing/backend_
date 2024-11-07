@@ -37,6 +37,7 @@ public class EditPostService {
         Post newPost = Post.builder()
                 .title(request.getTitle())
                 .userId(userId)
+                .thumbnailUrl(request.getThumbnailUrl())
                 .build();
 
         PostContent newContent = new PostContent(newPost, request.getContent());
@@ -51,6 +52,7 @@ public class EditPostService {
 
         validatePostOwnership(existingPost, userId);
         existingPost.update(request.getTitle());
+        existingPost.setThumbnailUrl(request.getThumbnailUrl());
 
         PostContent postContent = existingPost.getPostContent();
         if (postContent == null) {

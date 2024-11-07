@@ -13,6 +13,7 @@ public class PostDetailResponse {
     private Long id;
     private String title;
     private String content;
+    private String thumbnailUrl;
     private LocalDateTime createAt;
     private String authorName;
 
@@ -21,6 +22,7 @@ public class PostDetailResponse {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getPostContent().getContent())
+                .thumbnailUrl(post.getThumbnailUrl())
                 .createAt(post.getCreatedAt())
                 .authorName(authorName)
                 .build();
