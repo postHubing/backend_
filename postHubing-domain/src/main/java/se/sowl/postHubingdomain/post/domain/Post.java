@@ -22,6 +22,9 @@ public class Post {
     @Column(nullable = false)
     private String title;
 
+    @Column
+    private String thumbnailUrl;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
