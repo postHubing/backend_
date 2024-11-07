@@ -1,6 +1,7 @@
 package se.sowl.postHubingapi.common.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -30,8 +31,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**")  // H2 콘솔용 CSRF 예외 처리
+                        .disable()
+                )
+                .headers(headers -> headers
+                        .frameOptions()
+                        .sameOrigin()  // H2 콘솔 화면을 위한 Frame 옵션 설정
+                )
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(PathRequest.toH2Console()).permitAll()  // H2 콘솔 경로 모두 허용
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/boards/**").authenticated()
                         .requestMatchers("/api/users/**").authenticated()
@@ -39,7 +48,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/posts/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
@@ -55,7 +63,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // TODO: 환경변수화 처리
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
