@@ -55,9 +55,9 @@ class PostControllerTest {
         customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
         when(oAuthService.loadUser(any())).thenReturn(customOAuth2User);
 
-        PostListResponse post1 = new PostListResponse(1L, "testPost1", null, null, testUser.getId());
-        PostListResponse post2 = new PostListResponse(2L, "testPost2", null, null, testUser.getId());
-        PostListResponse post3 = new PostListResponse(3L, "testPost3", null, null, testUser.getId());
+        PostListResponse post1 = new PostListResponse(1L, "testPost1", null, null, null, testUser.getId());
+        PostListResponse post2 = new PostListResponse(2L, "testPost2", null, null, null ,testUser.getId());
+        PostListResponse post3 = new PostListResponse(3L, "testPost3", null, null, null ,testUser.getId());
 
 
         testPostLists = Arrays.asList(post1, post2, post3);
@@ -106,6 +106,7 @@ class PostControllerTest {
                     .id(testPost.getId())
                     .title("testPost1")
                     .content("testContent1")
+                    .thumbnailUrl("testThumbnailUrl")
                     .createAt(LocalDateTime.now())
                     .authorName("테스트유저")
                     .build();
@@ -123,6 +124,7 @@ class PostControllerTest {
                     .andExpect(jsonPath("$.message").value("성공"))
                     .andExpect(jsonPath("$.result.title").value("testPost1"))
                     .andExpect(jsonPath("$.result.content").value("testContent1"))
+                    .andExpect(jsonPath("$.result.thumbnailUrl").value("testThumbnailUrl"))
                     .andExpect(jsonPath("$.result.authorName").value("테스트유저"))
                     .andDo(print());
         }
@@ -142,6 +144,7 @@ class PostControllerTest {
                     .id(testPost.getId())
                     .title("testPost1")
                     .content("testContent1")
+                    .thumbnailUrl("testThumbnailUrl")
                     .createAt(LocalDateTime.now())
                     .authorName("테스트유저")
                     .build();

@@ -62,7 +62,7 @@ class EditPostServiceTest {
         @DisplayName("새 게시물 생성")
         void createNewPost(){
             //given
-            EditPostRequest request = new EditPostRequest(null, "새 게시물", "새 내용");
+            EditPostRequest request = new EditPostRequest(null, "새 게시물", "새 내용","새 썸네일");
 
             //when
             PostDetailResponse response = editPostService.editPost(testUser.getId(),request);
@@ -71,11 +71,13 @@ class EditPostServiceTest {
             assertNotNull(response);
             assertEquals(request.getTitle(), response.getTitle());
             assertEquals(request.getContent(), response.getContent());
+            assertEquals(request.getThumbnailUrl(), response.getThumbnailUrl());
 
             Post savedPost = postRepository.findById(response.getId()).orElse(null);
             assertNotNull(savedPost);
             assertEquals(request.getTitle(),response.getTitle());
             assertEquals(request.getContent(), response.getContent());
+            assertEquals(request.getThumbnailUrl(), response.getThumbnailUrl());
         }
     }
 
@@ -84,7 +86,7 @@ class EditPostServiceTest {
     void updateExistingPost(){
         //given
         Post existingPost = testPosts.get(0);
-        EditPostRequest request = new EditPostRequest(existingPost.getId(), "수정된 게시물", "수정된 내용");
+        EditPostRequest request = new EditPostRequest(existingPost.getId(), "수정된 게시물", "수정된 내용","수정된 썸네일");
 
         //when
         PostDetailResponse response = editPostService.editPost(testUser.getId(), request);
@@ -93,12 +95,14 @@ class EditPostServiceTest {
         assertNotNull(response);
         assertEquals(request.getTitle(), response.getTitle());
         assertEquals(request.getContent(), response.getContent());
+        assertEquals(request.getThumbnailUrl(), response.getThumbnailUrl());
         assertEquals(testUser.getNickname() != null ? testUser.getNickname() : testUser.getName(), response.getAuthorName());
 
         Post updatedPost = postRepository.findById(existingPost.getId()).orElse(null);
         assertNotNull(updatedPost);
         assertEquals(request.getTitle(), updatedPost.getTitle());
         assertEquals(request.getContent(), updatedPost.getPostContent().getContent());
+        assertEquals(request.getThumbnailUrl(), updatedPost.getThumbnailUrl());
     }
 
 
