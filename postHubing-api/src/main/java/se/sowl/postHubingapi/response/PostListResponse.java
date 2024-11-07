@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class PostListResponse {
     private Long id;
     private String title;
+    private String thumbnailUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long userId;
@@ -19,6 +20,7 @@ public class PostListResponse {
         return new PostListResponse(
                 post.getId(),
                 post.getTitle(),
+                post.getThumbnailUrl(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 post.getUserId());
