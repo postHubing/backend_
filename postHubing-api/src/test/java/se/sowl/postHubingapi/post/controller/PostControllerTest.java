@@ -163,4 +163,53 @@ class PostControllerTest {
         }
 
     }
+    @Nested
+    @DisplayName("게시물 검색")
+    class searchPosts{
+        @Test
+        @DisplayName("GET /api/posts/search - 게시물 검색 성공")
+        @WithMockUser
+        void searchSuccessPosts() throws Exception{
+            //given
+            String keyword = "테스트";
+
+            //when
+            when(postService.searchPosts(keyword)).thenReturn(testPostLists);
+
+            //then
+            mockMvc.perform(get("/api/posts/search")
+                            .param("keyword", keyword)
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("성공"))
+                    .andExpect(jsonPath("$.result").isArray())
+                    .andExpect(jsonPath("$.result.length()").value(3))
+                    .andExpect(jsonPath("$.result[0].title").value("testPost1"))
+                    .andExpect(jsonPath("$.result[1].title").value("testPost2"))
+                    .andExpect(jsonPath("$.result[2].title").value("testPost3"));
+        }
+
+        @Test
+        @DisplayName("GET /api/posts/search - 게시물 검색 실패")
+        @WithMockUser
+        void searchFailPosts() throws Exception{
+            //given
+            String keyword = "테스트";
+
+            //when
+            when(postService.searchPosts(keyword)).thenThrow(new IllegalArgumentException("검색 결과가 없습니다."));
+
+            //then
+            mockMvc.perform(get("/api/posts/search")
+                            .param("keyword", keyword)
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("검색 결과가 없습니다."))
+                    .andDo(print());
+        }
+    }
 }

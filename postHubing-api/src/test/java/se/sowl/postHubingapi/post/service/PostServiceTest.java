@@ -103,4 +103,42 @@ class PostServiceTest {
         }
     }
 
+
+
+    @Nested
+    @DisplayName("게시물 검색")
+    class searchPosts{
+        @Test
+        @DisplayName("게시물 검색 성공")
+        void searchSuccessPosts(){
+            //given
+            String keyword = "테스트";  // 더 일반적인 검색어로 변경
+
+            //when
+            List<PostListResponse> searchResult = postService.searchPosts(keyword);
+
+            //then
+            assertAll(
+                    () -> assertFalse(searchResult.isEmpty(), "검색 결과가 존재해야 합니다."),
+                    () -> assertTrue(searchResult.size() >= 1, "하나 이상의 게시물이 검색되어야 합니다."),
+                    () -> assertTrue(searchResult.stream()
+                                    .allMatch(post -> post.getTitle().contains(keyword)),
+                            "검색된 모든 게시물의 제목에 검색어가 포함되어야 합니다.")
+            );
+        }
+
+        @Test
+        @DisplayName("검색 결과 없음")
+        void searchFailPosts(){
+            // given
+            String keyword = "존재하지않는게시물";
+
+            // when
+            List<PostListResponse> results = postService.searchPosts(keyword);
+
+            // then
+            assertTrue(results.isEmpty(), "검색 결과가 없어야 합니다.");
+        }
+    }
+
 }

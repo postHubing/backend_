@@ -46,5 +46,18 @@ public class PostService {
                 .map(user -> user.getNickname() != null ? user.getNickname() : user.getName())
                 .orElse("탈퇴한 사용자");
     }
+
+    @Transactional
+    public List<PostListResponse> searchPosts(String keyword) {
+        List<Post> posts = postRepository.findAll();
+
+        List<Post> filteredPosts = posts.stream()
+                .filter(post -> post.getTitle().contains(keyword))
+                .toList();
+
+        return filteredPosts.stream()
+                .map(PostListResponse::from)
+                .toList();
+    }
 }
 

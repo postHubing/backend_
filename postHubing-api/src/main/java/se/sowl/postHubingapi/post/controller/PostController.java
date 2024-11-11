@@ -32,6 +32,12 @@ public class PostController {
         PostDetailResponse response = postService.getPostDetail(postId);
         return CommonResponse.ok(response);
     }
+
+    @GetMapping("/search")
+    public CommonResponse<List<PostListResponse>> searchPosts(@RequestParam("keyword") String keyword){
+        List<PostListResponse> searchResult = postService.searchPosts(keyword);
+        return CommonResponse.ok(searchResult);
+    }
 }
 
 
