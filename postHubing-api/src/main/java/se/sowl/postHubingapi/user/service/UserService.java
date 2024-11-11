@@ -3,11 +3,9 @@ package se.sowl.postHubingapi.user.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import se.sowl.postHubingapi.user.dto.EditUserRequest;
+import se.sowl.postHubingapi.user.dto.request.EditUserRequest;
 import se.sowl.postHubingdomain.user.domain.User;
 import se.sowl.postHubingdomain.user.repository.UserRepository;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

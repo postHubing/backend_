@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.oauth.service.OAuthService;
-import se.sowl.postHubingapi.user.dto.EditUserRequest;
+import se.sowl.postHubingapi.user.dto.request.EditUserRequest;
 import se.sowl.postHubingdomain.user.InvalidNicknameException;
 import se.sowl.postHubingdomain.user.domain.CustomOAuth2User;
 import se.sowl.postHubingdomain.user.domain.User;
