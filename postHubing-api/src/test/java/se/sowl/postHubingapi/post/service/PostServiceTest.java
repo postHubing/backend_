@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import se.sowl.postHubingapi.fixture.PostFixture;
 import se.sowl.postHubingapi.fixture.UserFixture;
+import se.sowl.postHubingapi.post.dto.UserRequest;
 import se.sowl.postHubingapi.post.exception.PostException;
 import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingapi.response.PostListResponse;
@@ -138,6 +139,51 @@ class PostServiceTest {
 
             // then
             assertTrue(results.isEmpty(), "검색 결과가 없어야 합니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("특정 사용자 게시물 조회")
+    class getPostListByUserId{
+        @Test
+        @DisplayName("본인 게시물 조회")
+        void getMyPagePosts(){
+            //given
+            UserRequest request = UserRequest.builder()
+                    .targetUserId(testUser.getId())
+                    .loggedInUserId(testUser.getId())
+                    .build();
+
+            //when
+            List<PostListResponse> myPagePosts = postService.getPostListByUserId(request);
+
+            //then
+            assertAll(
+                    () -> assertFalse(myPagePosts.isEmpty(), "본인 게시물이 존재해야 합니다."),
+                    () -> assertTrue(myPagePosts.stream()
+                                    .allMatch(post -> post.getUserId().equals(testUser.getId())),
+                            "본인 게시물만 조회되어야 합니다.")
+            );
+        }
+
+        @Test
+        @DisplayName("타인 게시물 조회")
+        void getOtherPagePosts(){
+            //given
+            UserRequest userRequest = UserRequest.builder()
+                    .targetUserId(testUser.getId())
+                    .loggedInUserId(999999L)
+                    .build();
+            //when
+            List<PostListResponse> otherPagePosts = postService.getPostListByUserId(userRequest);
+
+            //then
+            assertAll(
+                    () -> assertFalse(otherPagePosts.isEmpty(), "타인 게시물이 존재해야 합니다."),
+                    () -> assertTrue(otherPagePosts.stream()
+                                    .allMatch(post -> post.getUserId().equals(testUser.getId())),
+                            "타인 게시물만 조회되어야 합니다.")
+            );
         }
     }
 

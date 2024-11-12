@@ -212,4 +212,60 @@ class PostControllerTest {
                     .andDo(print());
         }
     }
+    @Nested
+    @DisplayName("게시물 작성자 조회")
+    class getPostsByUser{
+        @Test
+        @DisplayName("GET /api/posts/user - 본인 게시물 조회 성공")
+        @WithMockUser
+        void getPostsByUserSuccess() throws Exception{
+            //given
+            Long targetUserId = 1L;
+            Long loggedInUserId = 1L;
+
+            //when
+            when(postService.getPostListByUserId(any())).thenReturn(testPostLists);
+
+            //then
+            mockMvc.perform(get("/api/posts/user")
+                            .param("targetUserId", String.valueOf(targetUserId))
+                            .param("loggedInUserId", String.valueOf(loggedInUserId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("성공"))
+                    .andExpect(jsonPath("$.result").isArray())
+                    .andExpect(jsonPath("$.result.length()").value(3))
+                    .andExpect(jsonPath("$.result[0].title").value("testPost1"))
+                    .andExpect(jsonPath("$.result[1].title").value("testPost2"))
+                    .andExpect(jsonPath("$.result[2].title").value("testPost3"));
+        }
+        @Test
+        @DisplayName("GET /api/posts/user - 타인 게시물 조회 성공")
+        @WithMockUser
+        void getPostsByUserFail() throws Exception{
+            //given
+            Long targetUserId = 2L;
+            Long loggedInUserId = 1L;
+
+            //when
+            when(postService.getPostListByUserId(any())).thenReturn(testPostLists);
+
+            //then
+            mockMvc.perform(get("/api/posts/user")
+                            .param("targetUserId", String.valueOf(targetUserId))
+                            .param("loggedInUserId", String.valueOf(loggedInUserId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("성공"))
+                    .andExpect(jsonPath("$.result").isArray())
+                    .andExpect(jsonPath("$.result.length()").value(3))
+                    .andExpect(jsonPath("$.result[0].title").value("testPost1"))
+                    .andExpect(jsonPath("$.result[1].title").value("testPost2"))
+                    .andExpect(jsonPath("$.result[2].title").value("testPost3"));
+        }
+    }
 }
