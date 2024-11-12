@@ -2,11 +2,9 @@ package se.sowl.postHubingapi.post.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import se.sowl.postHubingapi.common.CommonResponse;
+import se.sowl.postHubingapi.post.dto.UserRequest;
 import se.sowl.postHubingapi.post.service.PostService;
 import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingapi.response.PostListResponse;
@@ -37,6 +35,19 @@ public class PostController {
     public CommonResponse<List<PostListResponse>> searchPosts(@RequestParam("keyword") String keyword){
         List<PostListResponse> searchResult = postService.searchPosts(keyword);
         return CommonResponse.ok(searchResult);
+    }
+
+    @GetMapping("/user")
+    public CommonResponse<List<PostListResponse>> getPostsByUser(
+            @RequestParam("targetUserId") Long targetUserId,
+            @RequestParam("loggedInUserId") Long loggedInUserId
+    ){
+        UserRequest request = UserRequest.builder()
+                .targetUserId(targetUserId)
+                .loggedInUserId(loggedInUserId)
+                .build();
+        List<PostListResponse> postList = postService.getPostListByUserId(request);
+        return CommonResponse.ok(postList);
     }
 }
 

@@ -3,6 +3,7 @@ package se.sowl.postHubingapi.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.sowl.postHubingapi.post.dto.UserRequest;
 import se.sowl.postHubingapi.post.exception.PostException;
 import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingapi.response.PostListResponse;
@@ -58,6 +59,34 @@ public class PostService {
         return filteredPosts.stream()
                 .map(PostListResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public List<PostListResponse> getPostListByUserId(UserRequest request){
+
+        if (isOwner(request)) {
+            return getMyPagePosts(request.getTargetUserId());
+        }else {
+            return getOtherPagePosts(request.getTargetUserId());
+        }
+    }
+
+    private List<PostListResponse> getMyPagePosts(Long userId) {
+        List<Post> posts = postRepository.findByUserId(userId);
+        return posts.stream()
+                .map(PostListResponse::from)
+                .toList();
+    }
+
+    private List<PostListResponse> getOtherPagePosts(Long targetUserId) {
+        List<Post> posts = postRepository.findByUserId(targetUserId);
+        return posts.stream()
+                .map(PostListResponse::from)
+                .toList();
+    }
+
+    private boolean isOwner(UserRequest request) {
+        return request.getTargetUserId().equals(request.getLoggedInUserId());
     }
 }
 
