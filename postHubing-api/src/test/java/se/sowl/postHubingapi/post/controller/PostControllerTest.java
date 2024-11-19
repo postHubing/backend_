@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -266,6 +267,51 @@ class PostControllerTest {
                     .andExpect(jsonPath("$.result[0].title").value("testPost1"))
                     .andExpect(jsonPath("$.result[1].title").value("testPost2"))
                     .andExpect(jsonPath("$.result[2].title").value("testPost3"));
+        }
+
+        @Nested
+        @DisplayName("게시물 삭제")
+        @WithMockUser
+        class deletePost{
+            @Test
+            @DisplayName("POST /api/posts/delete - 게시물 삭제 성공")
+            void deletePostSuccess() throws Exception{
+                //given
+                Long postId = 1L;
+
+                //when
+                when(postService.deletePost(postId)).thenReturn(PostDetailResponse.builder().build());
+
+                //then
+                mockMvc.perform(post("/api/posts/delete")
+                                .param("postId", String.valueOf(postId))
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.code").value("SUCCESS"))
+                        .andExpect(jsonPath("$.message").value("성공"))
+                        .andDo(print());
+            }
+
+            @Test
+            @DisplayName("POST /api/posts/delete - 게시물 삭제 실패")
+            void deletePostFail() throws Exception{
+                //given
+                Long postId = 9999L;
+
+                //when
+                when(postService.deletePost(postId)).thenThrow(new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+
+                //then
+                mockMvc.perform(post("/api/posts/delete")
+                                .param("postId", String.valueOf(postId))
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.code").value("FAIL"))
+                        .andExpect(jsonPath("$.message").value("게시물을 찾을 수 없습니다."))
+                        .andDo(print());
+            }
         }
     }
 }

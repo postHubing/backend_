@@ -185,6 +185,41 @@ class PostServiceTest {
                             "타인 게시물만 조회되어야 합니다.")
             );
         }
+
+        @Nested
+        @DisplayName("게시물 삭제")
+        class deletePost{
+            @Test
+            @DisplayName("게시판 삭제 성공")
+            void deletePostSuccess(){
+                //given
+                Post testPost = testPosts.get(0);
+
+                //when
+                PostDetailResponse response = postService.deletePost(testPost.getId());
+
+                //then
+                assertAll(
+                        () -> assertEquals(testPost.getTitle(), response.getTitle(), "게시물 제목이 일치해야합니다."),
+                        () -> assertEquals(testPost.getPostContent().getContent(), response.getContent(), "게시물 내용이 일치해야합니다."),
+                        () -> assertEquals(testUser.getNickname(), response.getAuthorName(), "게시물 작성자 닉네임이 일치해야합니다.")
+                );
+
+            }
+
+            @Test
+            @DisplayName("존재하지 않는 게시판 삭제 시도")
+            void deletePostNotExisting(){
+                //given
+                Long notExistingPostId = 9999L;
+
+                //when & then
+                assertThrows(PostException.PostNotFoundException.class,
+                        ()-> postService.deletePost(notExistingPostId),
+                        "존재하지 않는 게시글 ID로 삭제 시 PostNotFoundException이 발생해야 합니다.");
+            }
+        }
+
     }
 
 }
