@@ -88,5 +88,14 @@ public class PostService {
     private boolean isOwner(UserRequest request) {
         return request.getTargetUserId().equals(request.getLoggedInUserId());
     }
+
+    @Transactional
+    public PostDetailResponse deletePost(Long postId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostException.PostNotFoundException::new);
+
+        postRepository.delete(post);
+        return createPostDetailResponse(post);
+    }
 }
 

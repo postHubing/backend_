@@ -49,6 +49,12 @@ public class PostController {
         List<PostListResponse> postList = postService.getPostListByUserId(request);
         return CommonResponse.ok(postList);
     }
+
+    @PostMapping("/delete")
+    public CommonResponse <PostDetailResponse> deletePost(@RequestParam("postId") Long postId){
+        PostDetailResponse response = postService.deletePost(postId);
+        return CommonResponse.ok(response);
+    }
 }
 
 
