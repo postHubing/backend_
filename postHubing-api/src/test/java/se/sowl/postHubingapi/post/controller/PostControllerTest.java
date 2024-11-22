@@ -213,42 +213,18 @@ class PostControllerTest {
                     .andDo(print());
         }
     }
+
+
     @Nested
     @DisplayName("게시물 작성자 조회")
     class getPostsByUser{
-        @Test
-        @DisplayName("GET /api/posts/user - 본인 게시물 조회 성공")
-        @WithMockUser
-        void getPostsByUserSuccess() throws Exception{
-            //given
-            Long targetUserId = 1L;
-            Long loggedInUserId = 1L;
 
-            //when
-            when(postService.getPostListByUserId(any())).thenReturn(testPostLists);
-
-            //then
-            mockMvc.perform(get("/api/posts/user")
-                            .param("targetUserId", String.valueOf(targetUserId))
-                            .param("loggedInUserId", String.valueOf(loggedInUserId))
-                            .with(csrf())
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.code").value("SUCCESS"))
-                    .andExpect(jsonPath("$.message").value("성공"))
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result.length()").value(3))
-                    .andExpect(jsonPath("$.result[0].title").value("testPost1"))
-                    .andExpect(jsonPath("$.result[1].title").value("testPost2"))
-                    .andExpect(jsonPath("$.result[2].title").value("testPost3"));
-        }
         @Test
-        @DisplayName("GET /api/posts/user - 타인 게시물 조회 성공")
+        @DisplayName("GET /api/posts/user - 유저 아이디로  게시물 조회 성공")
         @WithMockUser
         void getPostsByUserFail() throws Exception{
             //given
             Long targetUserId = 2L;
-            Long loggedInUserId = 1L;
 
             //when
             when(postService.getPostListByUserId(any())).thenReturn(testPostLists);
@@ -256,7 +232,6 @@ class PostControllerTest {
             //then
             mockMvc.perform(get("/api/posts/user")
                             .param("targetUserId", String.valueOf(targetUserId))
-                            .param("loggedInUserId", String.valueOf(loggedInUserId))
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -269,49 +244,72 @@ class PostControllerTest {
                     .andExpect(jsonPath("$.result[2].title").value("testPost3"));
         }
 
-        @Nested
-        @DisplayName("게시물 삭제")
+        @Test
+        @DisplayName("GET /api/posts/user - 유저 아이디로  게시물 조회 실패")
         @WithMockUser
-        class deletePost{
-            @Test
-            @DisplayName("POST /api/posts/delete - 게시물 삭제 성공")
-            void deletePostSuccess() throws Exception{
-                //given
-                Long postId = 1L;
+        void getPostsByUserSuccess() throws Exception{
+            //given
+            Long targetUserId = 9999L;
 
-                //when
-                when(postService.deletePost(postId)).thenReturn(PostDetailResponse.builder().build());
+            //when
+            when(postService.getPostListByUserId(any())).thenThrow(new IllegalArgumentException("게시물을 찾을 수 없습니다."));
 
-                //then
-                mockMvc.perform(post("/api/posts/delete")
-                                .param("postId", String.valueOf(postId))
-                                .with(csrf())
-                                .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.code").value("SUCCESS"))
-                        .andExpect(jsonPath("$.message").value("성공"))
-                        .andDo(print());
-            }
+            //then
+            mockMvc.perform(get("/api/posts/user")
+                            .param("targetUserId", String.valueOf(targetUserId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("게시물을 찾을 수 없습니다."))
+                    .andDo(print());
+        }
 
-            @Test
-            @DisplayName("POST /api/posts/delete - 게시물 삭제 실패")
-            void deletePostFail() throws Exception{
-                //given
-                Long postId = 9999L;
 
-                //when
-                when(postService.deletePost(postId)).thenThrow(new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+    }
 
-                //then
-                mockMvc.perform(post("/api/posts/delete")
-                                .param("postId", String.valueOf(postId))
-                                .with(csrf())
-                                .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.code").value("FAIL"))
-                        .andExpect(jsonPath("$.message").value("게시물을 찾을 수 없습니다."))
-                        .andDo(print());
-            }
+    @Nested
+    @DisplayName("게시물 삭제")
+    @WithMockUser
+    class deletePost{
+        @Test
+        @DisplayName("POST /api/posts/delete - 게시물 삭제 성공")
+        void deletePostSuccess() throws Exception{
+            //given
+            Long postId = 1L;
+
+            //when
+            when(postService.deletePost(postId)).thenReturn(PostDetailResponse.builder().build());
+
+            //then
+            mockMvc.perform(post("/api/posts/delete")
+                            .param("postId", String.valueOf(postId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("성공"))
+                    .andDo(print());
+        }
+
+        @Test
+        @DisplayName("POST /api/posts/delete - 게시물 삭제 실패")
+        void deletePostFail() throws Exception{
+            //given
+            Long postId = 9999L;
+
+            //when
+            when(postService.deletePost(postId)).thenThrow(new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+
+            //then
+            mockMvc.perform(post("/api/posts/delete")
+                            .param("postId", String.valueOf(postId))
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("FAIL"))
+                    .andExpect(jsonPath("$.message").value("게시물을 찾을 수 없습니다."))
+                    .andDo(print());
         }
     }
 }

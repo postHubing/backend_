@@ -38,15 +38,8 @@ public class PostController {
     }
 
     @GetMapping("/user")
-    public CommonResponse<List<PostListResponse>> getPostsByUser(
-            @RequestParam("targetUserId") Long targetUserId,
-            @RequestParam("loggedInUserId") Long loggedInUserId
-    ){
-        UserRequest request = UserRequest.builder()
-                .targetUserId(targetUserId)
-                .loggedInUserId(loggedInUserId)
-                .build();
-        List<PostListResponse> postList = postService.getPostListByUserId(request);
+    public CommonResponse<List<PostListResponse>> getPostsByUser(@RequestParam("targetUserId") Long targetUserId){
+        List<PostListResponse> postList = postService.getPostListByUserId(targetUserId);
         return CommonResponse.ok(postList);
     }
 
