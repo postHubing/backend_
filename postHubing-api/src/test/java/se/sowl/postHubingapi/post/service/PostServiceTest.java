@@ -145,81 +145,72 @@ class PostServiceTest {
     @Nested
     @DisplayName("특정 사용자 게시물 조회")
     class getPostListByUserId{
-        @Test
-        @DisplayName("본인 게시물 조회")
-        void getMyPagePosts(){
-            //given
-            UserRequest request = UserRequest.builder()
-                    .targetUserId(testUser.getId())
-                    .loggedInUserId(testUser.getId())
-                    .build();
-
-            //when
-            List<PostListResponse> myPagePosts = postService.getPostListByUserId(request);
-
-            //then
-            assertAll(
-                    () -> assertFalse(myPagePosts.isEmpty(), "본인 게시물이 존재해야 합니다."),
-                    () -> assertTrue(myPagePosts.stream()
-                                    .allMatch(post -> post.getUserId().equals(testUser.getId())),
-                            "본인 게시물만 조회되어야 합니다.")
-            );
-        }
 
         @Test
-        @DisplayName("타인 게시물 조회")
+        @DisplayName("특정 사용자 게시물 조회 성공")
         void getOtherPagePosts(){
             //given
-            UserRequest userRequest = UserRequest.builder()
-                    .targetUserId(testUser.getId())
-                    .loggedInUserId(999999L)
-                    .build();
+            Long targetUserId = testUser.getId();
+
             //when
-            List<PostListResponse> otherPagePosts = postService.getPostListByUserId(userRequest);
+            List<PostListResponse> post = postService.getPostListByUserId(targetUserId);
 
             //then
             assertAll(
-                    () -> assertFalse(otherPagePosts.isEmpty(), "타인 게시물이 존재해야 합니다."),
-                    () -> assertTrue(otherPagePosts.stream()
-                                    .allMatch(post -> post.getUserId().equals(testUser.getId())),
-                            "타인 게시물만 조회되어야 합니다.")
+                    () -> assertFalse(post.isEmpty(), "특정 사용자 게시물이 존재해야합니다."),
+                    () -> assertTrue(post.stream()
+                                    .allMatch(p -> p.getUserId().equals(targetUserId)),
+                            "특정 사용자 게시물만 조회되어야합니다.")
             );
         }
 
-        @Nested
-        @DisplayName("게시물 삭제")
-        class deletePost{
-            @Test
-            @DisplayName("게시판 삭제 성공")
-            void deletePostSuccess(){
-                //given
-                Post testPost = testPosts.get(0);
+        @Test
+        @DisplayName("존재하지 않는 사용자 게시물 조회 시도")
+        void getPostListByNotExistingUserId(){
+            //given
+            Long notExistingUserId = 9999L;
 
-                //when
-                PostDetailResponse response = postService.deletePost(testPost.getId());
-
-                //then
-                assertAll(
-                        () -> assertEquals(testPost.getTitle(), response.getTitle(), "게시물 제목이 일치해야합니다."),
-                        () -> assertEquals(testPost.getPostContent().getContent(), response.getContent(), "게시물 내용이 일치해야합니다."),
-                        () -> assertEquals(testUser.getNickname(), response.getAuthorName(), "게시물 작성자 닉네임이 일치해야합니다.")
-                );
-
-            }
-
-            @Test
-            @DisplayName("존재하지 않는 게시판 삭제 시도")
-            void deletePostNotExisting(){
-                //given
-                Long notExistingPostId = 9999L;
-
-                //when & then
-                assertThrows(PostException.PostNotFoundException.class,
-                        ()-> postService.deletePost(notExistingPostId),
-                        "존재하지 않는 게시글 ID로 삭제 시 PostNotFoundException이 발생해야 합니다.");
-            }
+            //when & then
+            assertThrows(PostException.PostNotFoundException.class,
+                    ()-> postService.getPostListByUserId(notExistingUserId),
+                    "존재하지 않는 사용자 ID로 조회 시 PostNotFoundException이 발생해야 합니다.");
         }
 
+
+    }
+
+    @Nested
+    @DisplayName("게시물 삭제")
+    class deletePost{
+        @Test
+        @DisplayName("게시판 삭제 성공")
+        void deletePostSuccess(){
+            //given
+            Post testPost = testPosts.get(0);
+
+            //when
+            PostDetailResponse response = postService.deletePost(testPost.getId());
+
+            //then
+            assertAll(
+                    () -> assertEquals(testPost.getTitle(), response.getTitle(), "게시물 제목이 일치해야합니다."),
+                    () -> assertEquals(testPost.getPostContent().getContent(), response.getContent(), "게시물 내용이 일치해야합니다."),
+                    () -> assertEquals(testUser.getNickname(), response.getAuthorName(), "게시물 작성자 닉네임이 일치해야합니다.")
+            );
+
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 게시판 삭제 시도")
+        void deletePostNotExisting(){
+            //given
+            Long notExistingPostId = 9999L;
+
+            //when & then
+            assertThrows(PostException.PostNotFoundException.class,
+                    ()-> postService.deletePost(notExistingPostId),
+                    "존재하지 않는 게시글 ID로 삭제 시 PostNotFoundException이 발생해야 합니다.");
+        }
     }
 
 }

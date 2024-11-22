@@ -62,32 +62,17 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostListResponse> getPostListByUserId(UserRequest request){
-
-        if (isOwner(request)) {
-            return getMyPagePosts(request.getTargetUserId());
-        }else {
-            return getOtherPagePosts(request.getTargetUserId());
-        }
-    }
-
-    private List<PostListResponse> getMyPagePosts(Long userId) {
-        List<Post> posts = postRepository.findByUserId(userId);
-        return posts.stream()
-                .map(PostListResponse::from)
-                .toList();
-    }
-
-    private List<PostListResponse> getOtherPagePosts(Long targetUserId) {
+    public List<PostListResponse> getPostListByUserId(Long targetUserId){
         List<Post> posts = postRepository.findByUserId(targetUserId);
+
+        if (posts.isEmpty()) {
+            throw new PostException.PostNotFoundException();
+        }
         return posts.stream()
                 .map(PostListResponse::from)
                 .toList();
     }
 
-    private boolean isOwner(UserRequest request) {
-        return request.getTargetUserId().equals(request.getLoggedInUserId());
-    }
 
     @Transactional
     public PostDetailResponse deletePost(Long postId){
