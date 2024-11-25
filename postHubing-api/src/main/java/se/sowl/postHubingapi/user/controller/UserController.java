@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import se.sowl.postHubingapi.common.CommonResponse;
+import se.sowl.postHubingapi.post.exception.UserException;
 import se.sowl.postHubingapi.user.dto.request.EditUserRequest;
 import se.sowl.postHubingapi.user.dto.response.UserResponse;
 import se.sowl.postHubingapi.user.service.UserService;
@@ -19,14 +20,12 @@ import se.sowl.postHubingdomain.user.repository.UserRepository;
 public class UserController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public CommonResponse<UserResponse> getMe(@AuthenticationPrincipal CustomOAuth2User user) {
-        User getMeUser = userRepository.findById(user.getUserId())
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        return CommonResponse.ok(UserResponse.from(getMeUser));
+        UserResponse userResponse = userService.getUser(user.getUserId());
+        return CommonResponse.ok(userResponse);
     }
 
     @PutMapping("/edit")
@@ -35,4 +34,12 @@ public class UserController {
         userService.editUser(user.getUserId(), request);
         return CommonResponse.ok();
     }
+
+    @GetMapping("/userId")
+    public CommonResponse<UserResponse> getUser(@RequestParam("userId") Long userId){
+        UserResponse userResponse = userService.getUser(userId);
+        return CommonResponse.ok(userResponse);
+    }
+
+
 }
