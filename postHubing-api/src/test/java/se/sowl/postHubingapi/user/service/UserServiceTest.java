@@ -7,7 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.oauth.service.OAuthService;
+import se.sowl.postHubingapi.post.exception.UserException;
 import se.sowl.postHubingapi.user.dto.request.EditUserRequest;
+import se.sowl.postHubingapi.user.dto.response.UserResponse;
 import se.sowl.postHubingdomain.user.InvalidNicknameException;
 import se.sowl.postHubingdomain.user.domain.CustomOAuth2User;
 import se.sowl.postHubingdomain.user.domain.User;
@@ -37,7 +39,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = UserFixture.createUser(null, "테스트1", "테스트유저1", "test@example.com", "naver");
+        testUser = UserFixture.createUser(1L, "테스트1", "테스트유저1", "test@example.com", "naver");
         testUser = userRepository.save(testUser);
         customOAuth2User = UserFixture.createCustomOAuth2User(testUser);
         when(oAuthService.loadUser(any())).thenReturn(customOAuth2User);
@@ -79,6 +81,33 @@ class UserServiceTest {
             // when & then
             assertThrows(InvalidNicknameException.class, () -> {
                 userService.editUser(testUser.getId(), editUserRequest);
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 조회")
+    class GetUser{
+        @Test
+        @DisplayName("유저의 id를 받아서 해당 유저의 정보를 반환한다.")
+        void getUser(){
+            //when
+            UserResponse userResponse = userService.getUser(testUser.getId());
+
+            //then
+            assertThat(userResponse.getId()).isEqualTo(testUser.getId());
+
+        }
+
+        @Test
+        @DisplayName("유저의 id가 존재하지 않는 경우 예외를 발생시킨다.")
+        void getUserNotFound(){
+            //given
+            Long nonExistentUserId = 999999L;
+
+            //when & then
+            assertThrows(UserException.UserNotFoundException.class, () -> {
+                userService.getUser(nonExistentUserId);
             });
         }
     }

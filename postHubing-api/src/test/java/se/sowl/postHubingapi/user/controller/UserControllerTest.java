@@ -12,17 +12,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
 import se.sowl.postHubingapi.fixture.UserFixture;
 import se.sowl.postHubingapi.oauth.service.OAuthService;
+import se.sowl.postHubingapi.user.dto.response.UserResponse;
 import se.sowl.postHubingapi.user.service.UserService;
 import se.sowl.postHubingdomain.user.InvalidNicknameException;
 import se.sowl.postHubingdomain.user.domain.CustomOAuth2User;
 import se.sowl.postHubingdomain.user.domain.User;
+import se.sowl.postHubingdomain.user.repository.UserRepository;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
@@ -37,7 +41,11 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
+    @MockBean
+    private UserRepository userRepository;
+
     private User testUser;
+
     private CustomOAuth2User customOAuth2User;
 
     @BeforeEach
@@ -82,5 +90,35 @@ public class UserControllerTest {
                     .andExpect(jsonPath("$.code").value("400"))
                     .andExpect(jsonPath("$.message").value("닉네임은 2자 이상 15자 이하여야 합니다."));
         }*/
+    }
+
+    @Nested
+    @DisplayName("GET /api/users/userId")
+    @WithMockUser
+    class GetUser {
+        @Test
+        @DisplayName("유저 정보 조회 성공")
+        public void getUserSuccess() throws Exception {
+            // given
+            UserResponse userResponse = UserResponse.from(testUser);
+            when(userService.getUser(testUser.getId())).thenReturn(userResponse);
+
+            // when & then
+            mockMvc.perform(get("/api/users/userId")
+                            .param("userId", String.valueOf(testUser.getId()))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("성공"))
+                    .andExpect(jsonPath("$.result.id").value(testUser.getId()))
+                    .andExpect(jsonPath("$.result.name").value(testUser.getName()))
+                    .andExpect(jsonPath("$.result.nickname").value(testUser.getNickname()))
+                    .andExpect(jsonPath("$.result.email").value(testUser.getEmail()))
+                    .andExpect(jsonPath("$.result.provider").value(testUser.getProvider()))
+                    .andDo(print());
+        }
+
+
+
     }
 }
