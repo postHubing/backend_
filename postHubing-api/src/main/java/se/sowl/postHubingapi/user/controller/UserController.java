@@ -40,8 +40,4 @@ public class UserController {
         UserResponse userResponse = userService.getUser(userId);
         return CommonResponse.ok(userResponse);
     }
-
-
-
-
 }
