@@ -3,7 +3,6 @@ package se.sowl.postHubingapi.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import se.sowl.postHubingapi.post.dto.UserRequest;
 import se.sowl.postHubingapi.post.exception.PostException;
 import se.sowl.postHubingapi.response.PostDetailResponse;
 import se.sowl.postHubingapi.response.PostListResponse;

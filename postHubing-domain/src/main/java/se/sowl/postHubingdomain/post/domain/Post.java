@@ -36,6 +36,9 @@ public class Post {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostComment> postComments = new ArrayList<>();
+
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private PostContent postContent;
 

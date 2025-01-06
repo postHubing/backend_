@@ -40,7 +40,6 @@ public class PostComment {
     private List<CommentLike> commentLikes = new ArrayList<>();
 
     @Builder
-
     public PostComment(Long id, User user, Post post, String content) {
         this.id = id;
         this.content = content;
