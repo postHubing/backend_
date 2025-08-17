@@ -10,6 +10,7 @@ public class PostException extends RuntimeException{
         this.status = status;
     }
 
+
     public static class PostNotFoundException extends PostException {
         public PostNotFoundException() {
             super("존재하지 않는 게시물입니다.", HttpStatus.NOT_FOUND);
